@@ -164,7 +164,7 @@ it will warn and recommend moving back to a local path.
 
 ## Build & dev workflow (native)
 
-- `cd apps/macos && swift build`
+- From the native desktop package root, run `swift build`
 - `swift run OpenClaw` (or Xcode)
 - Package app: `scripts/package-mac-app.sh`
 
@@ -174,7 +174,6 @@ Use the debug CLI to exercise the same Gateway WebSocket handshake and discovery
 logic that the macOS app uses, without launching the app.
 
 ```bash
-cd apps/macos
 swift run openclaw-mac connect --json
 swift run openclaw-mac discover --timeout 3000 --json
 ```

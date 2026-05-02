@@ -82,6 +82,7 @@ describe("registerSubCliCommands", () => {
   const originalArgv = process.argv;
   const originalDisableLazySubcommands = process.env.OPENCLAW_DISABLE_LAZY_SUBCOMMANDS;
   const originalEnablePrivateQaCli = process.env.OPENCLAW_ENABLE_PRIVATE_QA_CLI;
+  const originalProductProfile = process.env.OPENCLAW_PRODUCT_PROFILE;
 
   const createRegisteredProgram = (argv: string[], name?: string) => {
     process.argv = argv;
@@ -126,6 +127,11 @@ describe("registerSubCliCommands", () => {
       delete process.env.OPENCLAW_ENABLE_PRIVATE_QA_CLI;
     } else {
       process.env.OPENCLAW_ENABLE_PRIVATE_QA_CLI = originalEnablePrivateQaCli;
+    }
+    if (originalProductProfile === undefined) {
+      delete process.env.OPENCLAW_PRODUCT_PROFILE;
+    } else {
+      process.env.OPENCLAW_PRODUCT_PROFILE = originalProductProfile;
     }
   });
 
@@ -245,5 +251,21 @@ describe("registerSubCliCommands", () => {
 
     expect(registerPluginsCli).toHaveBeenCalledTimes(1);
     expect(registerPluginCliCommandsFromValidatedConfig).toHaveBeenCalledTimes(1);
+  });
+
+  it("hides integration-heavy subcommands in the local-solo CLI profile", () => {
+    process.env.OPENCLAW_PRODUCT_PROFILE = "local-solo";
+
+    const program = createRegisteredProgram(["node", "openclaw"]);
+
+    const names = program.commands.map((cmd) => cmd.name());
+    expect(names).toContain("gateway");
+    expect(names).toContain("models");
+    expect(names).not.toContain("channels");
+    expect(names).not.toContain("docs");
+    expect(names).not.toContain("nodes");
+    expect(names).not.toContain("plugins");
+    expect(names).not.toContain("webhooks");
+    expect(names).not.toContain("qa");
   });
 });

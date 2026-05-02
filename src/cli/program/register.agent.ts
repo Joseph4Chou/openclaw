@@ -20,7 +20,7 @@ import { createDefaultDeps } from "../deps.js";
 import { formatHelpExamples } from "../help-format.js";
 import { collectOption } from "./helpers.js";
 
-export function registerAgentCommands(program: Command, args: { agentChannelOptions: string }) {
+export function registerAgentCommand(program: Command, args: { agentChannelOptions: string }) {
   program
     .command("agent")
     .description("Run an agent turn via the Gateway (use --local for embedded)")
@@ -87,7 +87,9 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/agent", "docs.openclaw.ai/cli/age
         await agentCliCommand(opts, defaultRuntime, deps);
       });
     });
+}
 
+export function registerAgentsCommand(program: Command) {
   const agents = program
     .command("agents")
     .description("Manage isolated agents (workspaces + auth + routing)")
@@ -280,4 +282,9 @@ ${formatHelpExamples([
       await agentsListCommand({}, defaultRuntime);
     });
   });
+}
+
+export function registerAgentCommands(program: Command, args: { agentChannelOptions: string }) {
+  registerAgentCommand(program, args);
+  registerAgentsCommand(program);
 }

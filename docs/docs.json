@@ -1259,30 +1259,15 @@
                   "tools/image-generation",
                   "tools/llm-task",
                   "tools/lobster",
-                  "tools/media-overview",
-                  "tools/music-generation",
                   "tools/pdf",
                   "tools/reactions",
                   "tools/thinking",
                   "tools/tokenjuice",
                   "tools/loop-detection",
                   "tools/trajectory",
-                  "tools/tts",
-                  "tools/video-generation",
-                  {
-                    "group": "Web browser",
-                    "pages": [
-                      "tools/browser",
-                      "tools/browser-control",
-                      "tools/browser-login",
-                      "tools/browser-linux-troubleshooting",
-                      "tools/browser-wsl2-windows-remote-cdp-troubleshooting"
-                    ]
-                  },
                   {
                     "group": "Web tools",
                     "pages": [
-                      "tools/web-fetch",
                       "tools/web",
                       "tools/brave-search",
                       "tools/duckduckgo-search",
@@ -1302,13 +1287,7 @@
               },
               {
                 "group": "Agent coordination",
-                "pages": [
-                  "tools/agent-send",
-                  "tools/subagents",
-                  "tools/acp-agents",
-                  "tools/acp-agents-setup",
-                  "tools/multi-agent-sandbox-tools"
-                ]
+                "pages": ["tools/agent-send"]
               }
             ]
           },
@@ -1388,14 +1367,7 @@
             "groups": [
               {
                 "group": "Platforms overview",
-                "pages": [
-                  "platforms/index",
-                  "platforms/macos",
-                  "platforms/linux",
-                  "platforms/windows",
-                  "platforms/android",
-                  "platforms/ios"
-                ]
+                "pages": ["platforms/index", "platforms/linux", "platforms/windows"]
               },
               {
                 "group": "macOS companion app",

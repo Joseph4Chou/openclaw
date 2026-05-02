@@ -1,6 +1,7 @@
 import { defineCommandDescriptorCatalog } from "./command-descriptor-utils.js";
 import type { NamedCommandDescriptor } from "./command-group-descriptors.js";
 import { isPrivateQaCliEnabled } from "./private-qa-cli.js";
+import { filterSubCliDescriptorsForProductProfile } from "./product-profile.js";
 
 export type SubCliDescriptor = NamedCommandDescriptor;
 
@@ -173,7 +174,9 @@ const subCliCommandCatalog = defineCommandDescriptorCatalog([
 export const SUB_CLI_DESCRIPTORS = subCliCommandCatalog.descriptors;
 
 export function getSubCliEntries(): ReadonlyArray<SubCliDescriptor> {
-  const descriptors = subCliCommandCatalog.getDescriptors();
+  const descriptors = filterSubCliDescriptorsForProductProfile(
+    subCliCommandCatalog.getDescriptors(),
+  );
   if (isPrivateQaCliEnabled()) {
     return descriptors;
   }
@@ -181,7 +184,9 @@ export function getSubCliEntries(): ReadonlyArray<SubCliDescriptor> {
 }
 
 export function getSubCliCommandsWithSubcommands(): string[] {
-  const commands = subCliCommandCatalog.getCommandsWithSubcommands();
+  const commands = getSubCliEntries()
+    .filter((descriptor) => descriptor.hasSubcommands)
+    .map((descriptor) => descriptor.name);
   if (isPrivateQaCliEnabled()) {
     return commands;
   }

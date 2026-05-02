@@ -1,5 +1,10 @@
-import { defineCommandDescriptorCatalog } from "./command-descriptor-utils.js";
+import {
+  defineCommandDescriptorCatalog,
+  getCommandDescriptorNames,
+  getCommandsWithSubcommands,
+} from "./command-descriptor-utils.js";
 import type { NamedCommandDescriptor } from "./command-group-descriptors.js";
+import { filterCoreCliDescriptorsForProductProfile } from "./product-profile.js";
 
 export type CoreCliCommandDescriptor = NamedCommandDescriptor;
 
@@ -110,13 +115,13 @@ const coreCliCommandCatalog = defineCommandDescriptorCatalog([
 export const CORE_CLI_COMMAND_DESCRIPTORS = coreCliCommandCatalog.descriptors;
 
 export function getCoreCliCommandDescriptors(): ReadonlyArray<CoreCliCommandDescriptor> {
-  return coreCliCommandCatalog.getDescriptors();
+  return filterCoreCliDescriptorsForProductProfile(coreCliCommandCatalog.getDescriptors());
 }
 
 export function getCoreCliCommandNames(): string[] {
-  return coreCliCommandCatalog.getNames();
+  return getCommandDescriptorNames(getCoreCliCommandDescriptors());
 }
 
 export function getCoreCliCommandsWithSubcommands(): string[] {
-  return coreCliCommandCatalog.getCommandsWithSubcommands();
+  return getCommandsWithSubcommands(getCoreCliCommandDescriptors());
 }

@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type {
@@ -49,6 +49,7 @@ import type { OpenClawPluginApi } from "../types.js";
 const SRC_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const REPO_ROOT = resolve(SRC_ROOT, "..");
 const PLUGIN_SDK_DIR = resolve(SRC_ROOT, "plugin-sdk");
+const HAS_BUNDLED_BROWSER_EXTENSION = existsSync(resolve(REPO_ROOT, "extensions/browser"));
 const sourceCache = new Map<string, string>();
 const repoTsFilesCache = new Map<string, string[]>();
 const representativeRuntimeSmokeSubpaths = ["channel-runtime", "conversation-runtime"] as const;
@@ -482,12 +483,24 @@ describe("plugin-sdk subpath exports", () => {
   });
 
   it("keeps browser compatibility helper subpaths as thin facades", () => {
+    if (!HAS_BUNDLED_BROWSER_EXTENSION) {
+      expect(pluginSdkSubpaths).not.toContain("browser-control-auth");
+      expect(pluginSdkSubpaths).not.toContain("browser-profiles");
+      expect(pluginSdkSubpaths).not.toContain("browser-host-inspection");
+      return;
+    }
     for (const contract of BROWSER_FACADE_SOURCE_CONTRACTS) {
       expectBrowserFacadeSourceContract(contract);
     }
   });
 
   it("keeps browser helper facade exports aligned with extension public wrappers", () => {
+    if (!HAS_BUNDLED_BROWSER_EXTENSION) {
+      expect(pluginSdkSubpaths).not.toContain("browser-control-auth");
+      expect(pluginSdkSubpaths).not.toContain("browser-profiles");
+      expect(pluginSdkSubpaths).not.toContain("browser-host-inspection");
+      return;
+    }
     for (const contract of BROWSER_HELPER_EXPORT_PARITY_CONTRACTS) {
       expectNamedExportParity(contract);
     }
@@ -1334,15 +1347,6 @@ describe("plugin-sdk subpath exports", () => {
       expect(typeof mod).toBe("object");
       expect(mod, `subpath ${id} should resolve`).toBeTruthy();
     }
-  });
-
-  it("keeps the Zalouser command-auth compatibility facade importable", async () => {
-    const zalouserSdk = await importResolvedPluginSdkSubpath("openclaw/plugin-sdk/zalouser");
-    const commandAuthSdk = await importResolvedPluginSdkSubpath("openclaw/plugin-sdk/command-auth");
-
-    expect(zalouserSdk.resolveSenderCommandAuthorization).toBe(
-      commandAuthSdk.resolveSenderCommandAuthorization,
-    );
   });
 
   it("exports single-provider plugin entry helpers from the dedicated subpath", () => {

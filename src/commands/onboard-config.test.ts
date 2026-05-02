@@ -53,4 +53,34 @@ describe("applyLocalSetupWorkspaceConfig", () => {
 
     expect(result.tools?.profile).toBe("full");
   });
+
+  it("applies the local-solo tool policy when the product profile is enabled", () => {
+    const baseConfig: OpenClawConfig = {
+      tools: {
+        alsoAllow: ["existing_tool"],
+        deny: ["existing_deny"],
+        profile: "full",
+      },
+    };
+
+    const result = applyLocalSetupWorkspaceConfig(baseConfig, "/tmp/workspace", {
+      OPENCLAW_PRODUCT_PROFILE: "local-solo",
+    });
+
+    expect(result.tools?.profile).toBe("minimal");
+    expect(result.tools?.alsoAllow).toEqual(["existing_tool", "message", "read"]);
+    expect(result.tools?.deny).toEqual([
+      "existing_deny",
+      "exec",
+      "process",
+      "browser",
+      "nodes",
+      "cron",
+      "gateway",
+      "agents_list",
+      "sessions_spawn",
+      "sessions_yield",
+      "subagents",
+    ]);
+  });
 });

@@ -47,11 +47,9 @@ For a complete map of the docs, see [Docs hubs](/start/hubs).
 - [Media images](/nodes/images)
 - [Media audio](/nodes/audio)
 
-## Companion apps
+## Local surfaces
 
-- [macOS app](/platforms/macos)
-- [iOS app](/platforms/ios)
-- [Android app](/platforms/android)
+- [WebChat + Control UI](/web)
 - [Windows (WSL2)](/platforms/windows)
 - [Linux app](/platforms/linux)
 

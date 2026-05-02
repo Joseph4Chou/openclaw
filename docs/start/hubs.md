@@ -113,11 +113,8 @@ Use these hubs to discover every page, including deep dives and reference docs t
 - [Automation & Tasks](/automation)
 - [Thinking + verbose](/tools/thinking)
 - [Models](/concepts/models)
-- [Sub-agents](/tools/subagents)
 - [Agent send CLI](/tools/agent-send)
 - [Terminal UI](/web/tui)
-- [Browser control](/tools/browser)
-- [Browser (Linux troubleshooting)](/tools/browser-linux-troubleshooting)
 - [Polls](/cli/message)
 
 ## Nodes, media, voice
@@ -133,9 +130,6 @@ Use these hubs to discover every page, including deep dives and reference docs t
 ## Platforms
 
 - [Platforms overview](/platforms)
-- [macOS](/platforms/macos)
-- [iOS](/platforms/ios)
-- [Android](/platforms/android)
 - [Windows (WSL2)](/platforms/windows)
 - [Linux](/platforms/linux)
 - [Web surfaces](/web)

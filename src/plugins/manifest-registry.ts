@@ -3,6 +3,7 @@ import path from "node:path";
 import type { OpenClawConfig } from "../config/types.js";
 import type { PluginInstallRecord } from "../config/types.plugins.js";
 import { isBlockedObjectKey } from "../infra/prototype-keys.js";
+import { isBundledPluginEnabledForProductProfile } from "../shared/product-profile.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { normalizeOptionalTrimmedStringList } from "../shared/string-normalization.js";
 import { sanitizeForLog } from "../terminal/ansi.js";
@@ -617,6 +618,12 @@ export function loadPluginManifestRegistry(
       continue;
     }
     const manifest = manifestRes.manifest;
+    if (
+      candidate.origin === "bundled" &&
+      !isBundledPluginEnabledForProductProfile(manifest.id, env)
+    ) {
+      continue;
+    }
     if (candidate.origin !== "bundled") {
       const allowLegacyBareMinHostVersion =
         candidate.origin === "global" &&

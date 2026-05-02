@@ -813,6 +813,13 @@ const shouldUseExistingDistForGatewayClient = (deps, buildRequirement) =>
 
 const isQaParityReportCommand = (args) => args[0] === "qa" && args[1] === "parity-report";
 
+const normalizeRunNodeArgs = (args) => {
+  if (args[0] === "--") {
+    return args.slice(1);
+  }
+  return args;
+};
+
 const shouldRunQaParityReportFromSource = (deps, buildRequirement) =>
   buildRequirement.reason === "missing_private_qa_dist" &&
   isQaParityReportCommand(deps.args) &&
@@ -840,6 +847,7 @@ const runQaParityReportFromSource = async (deps) => {
 };
 
 export async function runNodeMain(params = {}) {
+  const rawArgs = params.args ?? process.argv.slice(2);
   const deps = {
     spawn: params.spawn ?? spawn,
     spawnSync: params.spawnSync ?? spawnSync,
@@ -849,7 +857,7 @@ export async function runNodeMain(params = {}) {
     process: params.process ?? process,
     execPath: params.execPath ?? process.execPath,
     cwd: params.cwd ?? process.cwd(),
-    args: params.args ?? process.argv.slice(2),
+    args: normalizeRunNodeArgs(rawArgs),
     env: params.env ? { ...params.env } : { ...process.env },
     runRuntimePostBuild: params.runRuntimePostBuild ?? runRuntimePostBuild,
   };

@@ -56,16 +56,24 @@ const testProgramContext: ProgramContext = {
 
 describe("configureProgramHelp", () => {
   let originalArgv: string[];
+  let originalProductProfile: string | undefined;
 
   beforeEach(() => {
     vi.clearAllMocks();
     originalArgv = [...process.argv];
+    originalProductProfile = process.env.OPENCLAW_PRODUCT_PROFILE;
     hasEmittedCliBannerMock.mockReturnValue(false);
     resolveCommitHashMock.mockReturnValue("abc1234");
+    delete process.env.OPENCLAW_PRODUCT_PROFILE;
   });
 
   afterEach(() => {
     process.argv = originalArgv;
+    if (originalProductProfile === undefined) {
+      delete process.env.OPENCLAW_PRODUCT_PROFILE;
+    } else {
+      process.env.OPENCLAW_PRODUCT_PROFILE = originalProductProfile;
+    }
   });
 
   function makeProgramWithCommands() {
@@ -129,6 +137,19 @@ describe("configureProgramHelp", () => {
     expect(help).toContain("BANNER-LINE");
     expect(help).toContain("Examples:");
     expect(help).toContain("https://docs.openclaw.ai/cli");
+  });
+
+  it("uses local-solo root examples when the product profile is enabled", () => {
+    process.argv = ["node", "openclaw", "--help"];
+    process.env.OPENCLAW_PRODUCT_PROFILE = "local-solo";
+    const program = makeProgramWithCommands();
+    configureProgramHelp(program, testProgramContext);
+
+    const help = captureHelpOutput(program);
+    expect(help).toContain("openclaw setup");
+    expect(help).toContain('openclaw agent --local --message "Summarize this workspace"');
+    expect(help).not.toContain("openclaw channels login --verbose");
+    expect(help).not.toContain('openclaw message send --target +15555550123 --message "Hi" --json');
   });
 
   it("prints version and exits immediately when version flags are present", () => {

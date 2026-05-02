@@ -70,14 +70,6 @@
       "types": "./dist/plugin-sdk/core.d.ts",
       "default": "./dist/plugin-sdk/core.js"
     },
-    "./plugin-sdk/lmstudio": {
-      "types": "./dist/plugin-sdk/lmstudio.d.ts",
-      "default": "./dist/plugin-sdk/lmstudio.js"
-    },
-    "./plugin-sdk/lmstudio-runtime": {
-      "types": "./dist/plugin-sdk/lmstudio-runtime.d.ts",
-      "default": "./dist/plugin-sdk/lmstudio-runtime.js"
-    },
     "./plugin-sdk/provider-setup": {
       "types": "./dist/plugin-sdk/provider-setup.d.ts",
       "default": "./dist/plugin-sdk/provider-setup.js"
@@ -394,14 +386,6 @@
       "types": "./dist/plugin-sdk/simple-completion-runtime.d.ts",
       "default": "./dist/plugin-sdk/simple-completion-runtime.js"
     },
-    "./plugin-sdk/speech-core": {
-      "types": "./dist/plugin-sdk/speech-core.d.ts",
-      "default": "./dist/plugin-sdk/speech-core.js"
-    },
-    "./plugin-sdk/tts-runtime": {
-      "types": "./dist/plugin-sdk/tts-runtime.d.ts",
-      "default": "./dist/plugin-sdk/tts-runtime.js"
-    },
     "./plugin-sdk/plugin-runtime": {
       "types": "./dist/plugin-sdk/plugin-runtime.d.ts",
       "default": "./dist/plugin-sdk/plugin-runtime.js"
@@ -594,10 +578,6 @@
       "types": "./dist/plugin-sdk/allowlist-config-edit.d.ts",
       "default": "./dist/plugin-sdk/allowlist-config-edit.js"
     },
-    "./plugin-sdk/browser-config": {
-      "types": "./dist/plugin-sdk/browser-config.d.ts",
-      "default": "./dist/plugin-sdk/browser-config.js"
-    },
     "./plugin-sdk/boolean-param": {
       "types": "./dist/plugin-sdk/boolean-param.d.ts",
       "default": "./dist/plugin-sdk/boolean-param.js"
@@ -661,10 +641,6 @@
     "./plugin-sdk/direct-dm-guard-policy": {
       "types": "./dist/plugin-sdk/direct-dm-guard-policy.d.ts",
       "default": "./dist/plugin-sdk/direct-dm-guard-policy.js"
-    },
-    "./plugin-sdk/discord": {
-      "types": "./dist/plugin-sdk/discord.d.ts",
-      "default": "./dist/plugin-sdk/discord.js"
     },
     "./plugin-sdk/device-bootstrap": {
       "types": "./dist/plugin-sdk/device-bootstrap.d.ts",
@@ -866,10 +842,6 @@
       "types": "./dist/plugin-sdk/image-generation-runtime.d.ts",
       "default": "./dist/plugin-sdk/image-generation-runtime.js"
     },
-    "./plugin-sdk/image-generation-core": {
-      "types": "./dist/plugin-sdk/image-generation-core.d.ts",
-      "default": "./dist/plugin-sdk/image-generation-core.js"
-    },
     "./plugin-sdk/music-generation": {
       "types": "./dist/plugin-sdk/music-generation.d.ts",
       "default": "./dist/plugin-sdk/music-generation.js"
@@ -885,10 +857,6 @@
     "./plugin-sdk/video-generation-runtime": {
       "types": "./dist/plugin-sdk/video-generation-runtime.d.ts",
       "default": "./dist/plugin-sdk/video-generation-runtime.js"
-    },
-    "./plugin-sdk/video-generation-core": {
-      "types": "./dist/plugin-sdk/video-generation-core.d.ts",
-      "default": "./dist/plugin-sdk/video-generation-core.js"
     },
     "./plugin-sdk/reply-history": {
       "types": "./dist/plugin-sdk/reply-history.d.ts",
@@ -933,10 +901,6 @@
     "./plugin-sdk/keyed-async-queue": {
       "types": "./dist/plugin-sdk/keyed-async-queue.d.ts",
       "default": "./dist/plugin-sdk/keyed-async-queue.js"
-    },
-    "./plugin-sdk/qa-runner-runtime": {
-      "types": "./dist/plugin-sdk/qa-runner-runtime.d.ts",
-      "default": "./dist/plugin-sdk/qa-runner-runtime.js"
     },
     "./plugin-sdk/memory-core-engine-runtime": {
       "types": "./dist/plugin-sdk/memory-core-engine-runtime.d.ts",
@@ -1190,14 +1154,6 @@
       "types": "./dist/plugin-sdk/target-resolver-runtime.d.ts",
       "default": "./dist/plugin-sdk/target-resolver-runtime.js"
     },
-    "./plugin-sdk/telegram-account": {
-      "types": "./dist/plugin-sdk/telegram-account.d.ts",
-      "default": "./dist/plugin-sdk/telegram-account.js"
-    },
-    "./plugin-sdk/telegram-command-config": {
-      "types": "./dist/plugin-sdk/telegram-command-config.d.ts",
-      "default": "./dist/plugin-sdk/telegram-command-config.js"
-    },
     "./plugin-sdk/text-autolink-runtime": {
       "types": "./dist/plugin-sdk/text-autolink-runtime.d.ts",
       "default": "./dist/plugin-sdk/text-autolink-runtime.js"
@@ -1230,10 +1186,6 @@
       "types": "./dist/plugin-sdk/web-media.d.ts",
       "default": "./dist/plugin-sdk/web-media.js"
     },
-    "./plugin-sdk/zalouser": {
-      "types": "./dist/plugin-sdk/zalouser.d.ts",
-      "default": "./dist/plugin-sdk/zalouser.js"
-    },
     "./plugin-sdk/zod": {
       "types": "./dist/plugin-sdk/zod.d.ts",
       "default": "./dist/plugin-sdk/zod.js"
@@ -1242,19 +1194,6 @@
     "./cli-entry": "./openclaw.mjs"
   },
   "scripts": {
-    "android:assemble": "cd apps/android && ./gradlew :app:assemblePlayDebug",
-    "android:assemble:third-party": "cd apps/android && ./gradlew :app:assembleThirdPartyDebug",
-    "android:bundle:release": "bun apps/android/scripts/build-release-aab.ts",
-    "android:format": "cd apps/android && ./gradlew :app:ktlintFormat :benchmark:ktlintFormat",
-    "android:install": "cd apps/android && ./gradlew :app:installPlayDebug",
-    "android:install:third-party": "cd apps/android && ./gradlew :app:installThirdPartyDebug",
-    "android:lint": "cd apps/android && ./gradlew :app:ktlintCheck :benchmark:ktlintCheck",
-    "android:lint:android": "cd apps/android && ./gradlew :app:lintDebug",
-    "android:run": "cd apps/android && ./gradlew :app:installPlayDebug && adb shell am start -n ai.openclaw.app/.MainActivity",
-    "android:run:third-party": "cd apps/android && ./gradlew :app:installThirdPartyDebug && adb shell am start -n ai.openclaw.app/.MainActivity",
-    "android:test": "cd apps/android && ./gradlew :app:testPlayDebugUnitTest",
-    "android:test:integration": "OPENCLAW_LIVE_TEST=1 OPENCLAW_LIVE_ANDROID_NODE=1 node scripts/run-vitest.mjs run --config test/vitest/vitest.live.config.ts src/gateway/android-node.capabilities.live.test.ts",
-    "android:test:third-party": "cd apps/android && ./gradlew :app:testThirdPartyDebugUnitTest",
     "audit:seams": "node scripts/audit-seams.mjs",
     "build": "node scripts/build-all.mjs",
     "build:ci-artifacts": "node scripts/build-all.mjs ciArtifacts",
@@ -1333,35 +1272,22 @@
     "dup:check:coverage": "node scripts/check-duplicates.mjs --coverage",
     "dup:check:json": "node scripts/check-duplicates.mjs --json",
     "format": "oxfmt --write --threads=1",
-    "format:all": "pnpm format && pnpm format:swift",
+    "format:all": "pnpm format",
     "format:check": "oxfmt --check --threads=1",
     "format:diff": "oxfmt --write --threads=1 && git --no-pager diff",
     "format:docs": "node scripts/format-docs.mjs",
     "format:docs:check": "node scripts/format-docs.mjs --check",
     "format:fix": "oxfmt --write --threads=1",
-    "format:swift": "swiftformat --lint --config .swiftformat apps/macos/Sources apps/ios/Sources apps/shared/OpenClawKit/Sources",
     "gateway:dev": "OPENCLAW_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway",
     "gateway:dev:reset": "OPENCLAW_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway --reset",
     "gateway:watch": "node scripts/gateway-watch-tmux.mjs gateway --force",
     "gateway:watch:raw": "node scripts/watch-node.mjs gateway --force",
     "gen:host-env-policy:swift": "node scripts/generate-host-env-security-policy-swift.mjs --write",
     "ghsa:patch": "node scripts/ghsa-patch.mjs",
-    "ios:beta": "bash scripts/ios-beta-release.sh",
-    "ios:beta:archive": "bash scripts/ios-beta-archive.sh",
-    "ios:beta:prepare": "bash scripts/ios-beta-prepare.sh",
-    "ios:build": "bash -lc './scripts/ios-configure-signing.sh && ./scripts/ios-write-version-xcconfig.sh && cd apps/ios && xcodegen generate && xcodebuild -project OpenClaw.xcodeproj -scheme OpenClaw -destination \"${IOS_DEST:-platform=iOS Simulator,name=iPhone 17}\" -configuration Debug build'",
-    "ios:gen": "bash -lc './scripts/ios-configure-signing.sh && ./scripts/ios-write-version-xcconfig.sh && cd apps/ios && xcodegen generate'",
-    "ios:open": "bash -lc './scripts/ios-configure-signing.sh && ./scripts/ios-write-version-xcconfig.sh && cd apps/ios && xcodegen generate && open OpenClaw.xcodeproj'",
-    "ios:run": "bash -lc './scripts/ios-configure-signing.sh && ./scripts/ios-write-version-xcconfig.sh && cd apps/ios && xcodegen generate && xcodebuild -project OpenClaw.xcodeproj -scheme OpenClaw -destination \"${IOS_DEST:-platform=iOS Simulator,name=iPhone 17}\" -configuration Debug build && xcrun simctl boot \"${IOS_SIM:-iPhone 17}\" || true && xcrun simctl launch booted ai.openclaw.ios'",
-    "ios:version": "node --import tsx scripts/ios-version.ts --json",
-    "ios:version:check": "node --import tsx scripts/ios-sync-versioning.ts --check",
-    "ios:version:pin": "node --import tsx scripts/ios-pin-version.ts",
-    "ios:version:sync": "node --import tsx scripts/ios-sync-versioning.ts --write",
     "leak:embedded-run": "node --import tsx --expose-gc scripts/embedded-run-abort-leak.ts",
     "lint": "node scripts/run-oxlint-shards.mjs",
     "lint:agent:ingress-owner": "node scripts/check-ingress-agent-owner-context.mjs",
     "lint:all": "node scripts/run-oxlint.mjs",
-    "lint:apps": "pnpm lint:swift",
     "lint:auth:no-pairing-store-group": "node scripts/check-no-pairing-store-group-auth.mjs",
     "lint:auth:pairing-account-scope": "node scripts/check-pairing-account-scope.mjs",
     "lint:core": "node scripts/run-oxlint.mjs --tsconfig tsconfig.oxlint.core.json src ui packages",
@@ -1384,7 +1310,6 @@
     "lint:plugins:no-register-http-handler": "node scripts/check-no-register-http-handler.mjs",
     "lint:plugins:plugin-sdk-subpaths-exported": "node scripts/check-plugin-sdk-subpath-exports.mjs",
     "lint:scripts": "pnpm lint:docker-e2e && node scripts/run-oxlint.mjs --tsconfig tsconfig.oxlint.scripts.json scripts",
-    "lint:swift": "swiftlint lint --config .swiftlint.yml && (cd apps/ios && swiftlint lint --config .swiftlint.yml)",
     "lint:tmp:channel-agnostic-boundaries": "node scripts/check-channel-agnostic-boundaries.mjs",
     "lint:tmp:dynamic-import-warts": "node scripts/check-dynamic-import-warts.mjs",
     "lint:tmp:no-random-messaging": "node scripts/check-no-random-messaging-tmp.mjs",
@@ -1395,10 +1320,9 @@
     "lint:web-search-provider-boundaries": "node scripts/check-web-search-provider-boundaries.mjs",
     "lint:webhook:no-low-level-body-read": "node scripts/check-webhook-auth-body-order.mjs",
     "mac:open": "open dist/OpenClaw.app",
-    "mac:package": "bash scripts/package-mac-app.sh",
-    "mac:restart": "bash scripts/restart-mac.sh",
     "moltbot:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
     "openclaw": "node scripts/run-node.mjs",
+    "openclaw:local-solo": "OPENCLAW_PRODUCT_PROFILE=local-solo node scripts/run-node.mjs",
     "openclaw:rpc": "node scripts/run-node.mjs agent --mode rpc --json",
     "plugin-sdk:api:check": "node --import tsx scripts/generate-plugin-sdk-api-baseline.ts --check",
     "plugin-sdk:api:gen": "node --import tsx scripts/generate-plugin-sdk-api-baseline.ts --write",

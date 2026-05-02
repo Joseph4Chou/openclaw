@@ -400,6 +400,31 @@ describe("loadPluginManifestRegistry", () => {
     expect(warning?.message).toContain(path.join(configDir, "index.ts"));
   });
 
+  it("filters bundled plugins to the local-solo allowlist", () => {
+    const openaiDir = makeTempDir();
+    const telegramDir = makeTempDir();
+    writeManifest(openaiDir, { id: "openai", configSchema: { type: "object" } });
+    writeManifest(telegramDir, { id: "telegram", configSchema: { type: "object" } });
+
+    const registry = loadPluginManifestRegistry({
+      env: hermeticEnv({ OPENCLAW_PRODUCT_PROFILE: "local-solo" }),
+      candidates: [
+        createPluginCandidate({
+          idHint: "openai",
+          rootDir: openaiDir,
+          origin: "bundled",
+        }),
+        createPluginCandidate({
+          idHint: "telegram",
+          rootDir: telegramDir,
+          origin: "bundled",
+        }),
+      ],
+    });
+
+    expect(registry.plugins.map((plugin) => plugin.id)).toEqual(["openai"]);
+  });
+
   it("suppresses duplicate warnings for explicit installed globals overriding bundled plugins", () => {
     const bundledDir = makeTempDir();
     const globalDir = makeTempDir();

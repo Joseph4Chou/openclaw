@@ -5,8 +5,10 @@ import type { ProgramContext } from "./context.js";
 // Perf: `registerCoreCliByName(...)` dynamically imports registrar modules.
 // Mock the heavy registrars so this suite stays focused on command-registry wiring.
 vi.mock("./register.agent.js", () => ({
-  registerAgentCommands: (program: Command) => {
+  registerAgentCommand: (program: Command) => {
     program.command("agent");
+  },
+  registerAgentsCommand: (program: Command) => {
     program.command("agents");
   },
 }));
@@ -95,15 +97,14 @@ describe("command-registry", () => {
     expect(names).not.toContain("doctor");
   });
 
-  it("registerCoreCliByName resolves agents to the agent entry", async () => {
+  it("registerCoreCliByName resolves agents to the agents entry", async () => {
     const program = createProgram();
     const found = await registerCoreCliByName(program, testProgramContext, "agents");
     expect(found).toBe(true);
     const agentsCmd = program.commands.find((c) => c.name() === "agents");
     expect(agentsCmd).toBeDefined();
-    // The registrar also installs the singular "agent" command from the same entry.
     const agentCmd = program.commands.find((c) => c.name() === "agent");
-    expect(agentCmd).toBeDefined();
+    expect(agentCmd).toBeUndefined();
   });
 
   it("registerCoreCliByName returns false for unknown commands", async () => {
@@ -185,5 +186,27 @@ describe("command-registry", () => {
     const found = await registerCoreCliByName(program, testProgramContext, "dashboard");
     expect(found).toBe(true);
     expect(namesOf(program)).toEqual(["doctor", "dashboard", "reset", "uninstall"]);
+  });
+
+  it("hides multi-agent core commands in the local-solo CLI profile", () => {
+    const originalProfile = process.env.OPENCLAW_PRODUCT_PROFILE;
+    process.env.OPENCLAW_PRODUCT_PROFILE = "local-solo";
+    try {
+      const program = createProgram();
+      registerCoreCliCommands(program, testProgramContext, ["node", "openclaw", "--help"]);
+
+      const names = namesOf(program);
+      expect(names).toContain("agent");
+      expect(names).not.toContain("agents");
+      expect(names).not.toContain("dashboard");
+      expect(names).not.toContain("message");
+      expect(names).not.toContain("mcp");
+    } finally {
+      if (originalProfile === undefined) {
+        delete process.env.OPENCLAW_PRODUCT_PROFILE;
+      } else {
+        process.env.OPENCLAW_PRODUCT_PROFILE = originalProfile;
+      }
+    }
   });
 });

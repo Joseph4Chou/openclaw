@@ -97,7 +97,7 @@ describe("detectChangedScope", () => {
   it("keeps node lane off for native-only changes", () => {
     expect(detectChangedScope(["apps/macos/Sources/Foo.swift"])).toEqual({
       runNode: false,
-      runMacos: true,
+      runMacos: false,
       runAndroid: false,
       runWindows: false,
       runSkillsPython: false,
@@ -108,7 +108,7 @@ describe("detectChangedScope", () => {
       detectChangedScope(["apps/macos-mlx-tts/Sources/OpenClawMLXTTSHelper/main.swift"]),
     ).toEqual({
       runNode: false,
-      runMacos: true,
+      runMacos: false,
       runAndroid: false,
       runWindows: false,
       runSkillsPython: false,
@@ -117,8 +117,8 @@ describe("detectChangedScope", () => {
     });
     expect(detectChangedScope(["apps/shared/OpenClawKit/Sources/Foo.swift"])).toEqual({
       runNode: false,
-      runMacos: true,
-      runAndroid: true,
+      runMacos: false,
+      runAndroid: false,
       runWindows: false,
       runSkillsPython: false,
       runChangedSmoke: false,

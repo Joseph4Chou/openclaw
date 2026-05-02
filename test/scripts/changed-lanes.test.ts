@@ -607,12 +607,6 @@ describe("scripts/changed-lanes", () => {
   it("keeps release metadata commits off the full changed gate", () => {
     const result = detectChangedLanes([
       "CHANGELOG.md",
-      "apps/android/app/build.gradle.kts",
-      "apps/ios/CHANGELOG.md",
-      "apps/ios/Config/Version.xcconfig",
-      "apps/ios/fastlane/metadata/en-US/release_notes.txt",
-      "apps/ios/version.json",
-      "apps/macos/Sources/OpenClaw/Resources/Info.plist",
       "docs/.generated/config-baseline.sha256",
       "package.json",
       "src/config/schema.base.generated.ts",
@@ -632,7 +626,6 @@ describe("scripts/changed-lanes", () => {
       "lint:extensions:no-plugin-sdk-wildcard-reexports",
       "dup:check:coverage",
       "release-metadata:check",
-      "ios:version:check",
       "config:schema:check",
       "config:docs:check",
       "deps:root-ownership:check",

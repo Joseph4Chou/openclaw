@@ -189,7 +189,7 @@ export OPENCLAW_APNS_KEY_ID="KEYID"
 export OPENCLAW_APNS_PRIVATE_KEY_P8="$(cat /path/to/AuthKey_KEYID.p8)"
 ```
 
-These are gateway-host runtime env vars, not Fastlane settings. `apps/ios/fastlane/.env` only stores
+These are gateway-host runtime env vars, not Fastlane settings. The iOS Fastlane `.env` file only stores
 App Store Connect / TestFlight auth such as `ASC_KEY_ID` and `ASC_ISSUER_ID`; it does not configure
 direct APNs delivery for local iOS builds.
 

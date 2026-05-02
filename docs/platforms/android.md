@@ -8,7 +8,7 @@ title: "Android app"
 ---
 
 <Note>
-The Android app has not been publicly released yet. The source code is available in the [OpenClaw repository](https://github.com/openclaw/openclaw) under `apps/android`. You can build it yourself using Java 17 and the Android SDK (`./gradlew :app:assemblePlayDebug`). See [apps/android/README.md](https://github.com/openclaw/openclaw/blob/main/apps/android/README.md) for build instructions.
+The Android app has not been publicly released yet. The source still lives in the OpenClaw repository, and you can build it locally with Java 17 and the Android SDK (`./gradlew :app:assemblePlayDebug`). See the Android project README in the repository for the current build instructions.
 </Note>
 
 ## Support snapshot

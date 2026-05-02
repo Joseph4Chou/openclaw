@@ -54,15 +54,10 @@ pattern for new plugins.
   barrels or add a narrow generic SDK contract when a need is truly
   cross-channel.
 
-A small set of bundled-plugin helper seams still appear in the generated export
-map when they have tracked owner usage. They exist for bundled-plugin
-maintenance only and are not recommended import paths for new third-party
-plugins.
-
-`openclaw/plugin-sdk/discord` and `openclaw/plugin-sdk/telegram-account` are
-also kept as deprecated compatibility facades for tracked owner usage. Do not
-copy those import paths into new plugins; use injected runtime helpers and
-generic channel SDK subpaths instead.
+Only the bundled-plugin helper seams that still have a live bundled owner stay
+in the generated export map. New third-party plugins should continue to prefer
+generic channel and provider SDK subpaths over plugin-branded convenience
+imports.
 </Warning>
 
 ## Subpath reference

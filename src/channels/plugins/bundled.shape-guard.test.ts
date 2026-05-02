@@ -140,6 +140,8 @@ describe("bundled channel entry shape guards", () => {
   });
 
   it("loads real bundled channel entry contracts from the source tree", async () => {
+    let liveBundledChannelPluginIds: string[] = [];
+
     vi.doMock("../../plugins/bundled-channel-runtime.js", async (importOriginal) => {
       const actual =
         await importOriginal<typeof import("../../plugins/bundled-channel-runtime.js")>();
@@ -148,10 +150,13 @@ describe("bundled channel entry shape guards", () => {
         listBundledChannelPluginMetadata: (params: {
           includeChannelConfigs: boolean;
           includeSyntheticChannelConfigs: boolean;
-        }) =>
-          actual
-            .listBundledChannelPluginMetadata(params)
-            .filter((metadata) => metadata.manifest.id === "slack"),
+        }) => {
+          const metadata = actual.listBundledChannelPluginMetadata(params);
+          liveBundledChannelPluginIds = metadata
+            .filter((entry) => (entry.manifest.channels?.length ?? 0) > 0)
+            .map((entry) => entry.manifest.id);
+          return metadata;
+        },
       };
     });
 
@@ -160,8 +165,10 @@ describe("bundled channel entry shape guards", () => {
       "./bundled.js?scope=real-bundled-source-tree",
     );
 
-    expect(bundled.listBundledChannelPluginIds()).toEqual(["slack"]);
-    expect(bundled.hasBundledChannelEntryFeature("slack", "accountInspect")).toBe(true);
+    expect(bundled.listBundledChannelPluginIds()).toEqual(liveBundledChannelPluginIds);
+    if (liveBundledChannelPluginIds[0]) {
+      expect(bundled.getBundledChannelPlugin(liveBundledChannelPluginIds[0])).toBeDefined();
+    }
   });
 
   it("fills sparse bundled channel plugin metadata from package metadata", async () => {
@@ -793,9 +800,11 @@ describe("bundled channel entry shape guards", () => {
       "extensions/googlechat/runtime-api.ts",
       "extensions/irc/src/runtime-api.ts",
       "extensions/matrix/src/runtime-api.ts",
-    ].filter((filePath) =>
-      fs.readFileSync(path.resolve(filePath), "utf8").includes("openclaw/plugin-sdk/core"),
-    );
+    ]
+      .filter((filePath) => fs.existsSync(path.resolve(filePath)))
+      .filter((filePath) =>
+        fs.readFileSync(path.resolve(filePath), "utf8").includes("openclaw/plugin-sdk/core"),
+      );
 
     expect(offenders).toEqual([]);
   });
@@ -826,11 +835,13 @@ describe("bundled channel entry shape guards", () => {
       "extensions/slack/src/doctor.ts",
       "extensions/telegram/src/doctor.ts",
       "extensions/zalouser/src/doctor.ts",
-    ].filter((filePath) =>
-      fs
-        .readFileSync(path.resolve(filePath), "utf8")
-        .includes('from "openclaw/plugin-sdk/runtime"'),
-    );
+    ]
+      .filter((filePath) => fs.existsSync(path.resolve(filePath)))
+      .filter((filePath) =>
+        fs
+          .readFileSync(path.resolve(filePath), "utf8")
+          .includes('from "openclaw/plugin-sdk/runtime"'),
+      );
 
     expect(offenders).toEqual([]);
   });

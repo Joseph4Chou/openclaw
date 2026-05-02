@@ -9,6 +9,7 @@ import { replaceCliName, resolveCliName } from "../cli-name.js";
 import { CLI_LOG_LEVEL_VALUES, parseCliLogLevelOption } from "../log-level-option.js";
 import type { ProgramContext } from "./context.js";
 import { getCoreCliCommandsWithSubcommands } from "./core-command-descriptors.js";
+import { isLocalSoloCliProductProfile } from "./product-profile.js";
 import { getSubCliCommandsWithSubcommands } from "./subcli-descriptors.js";
 
 const CLI_NAME = resolveCliName();
@@ -20,7 +21,7 @@ const ROOT_COMMANDS_WITH_SUBCOMMANDS = new Set([
 const ROOT_COMMANDS_HINT =
   "Hint: commands suffixed with * have subcommands. Run <command> --help for details.";
 
-const EXAMPLES = [
+const ROOT_EXAMPLES = [
   ["openclaw models --help", "Show detailed help for the models command."],
   [
     "openclaw channels login --verbose",
@@ -43,6 +44,24 @@ const EXAMPLES = [
     "Send via your Telegram bot.",
   ],
 ] as const;
+
+const LOCAL_SOLO_ROOT_EXAMPLES = [
+  ["openclaw models --help", "Show detailed help for the models command."],
+  ["openclaw setup", "Initialize local config and agent workspace."],
+  ["openclaw configure", "Update gateway, model, and agent defaults interactively."],
+  ["openclaw config validate", "Validate the current local configuration file."],
+  ["openclaw gateway --port 18789", "Run the WebSocket Gateway locally."],
+  ["openclaw --dev gateway", "Run a dev Gateway (isolated state/config) on ws://127.0.0.1:19001."],
+  [
+    'openclaw agent --local --message "Summarize this workspace"',
+    "Run one embedded local agent turn with your shell's provider credentials.",
+  ],
+  ["openclaw health --json", "Check the running gateway and print machine-readable health."],
+] as const;
+
+function getRootHelpExamples(env: NodeJS.ProcessEnv = process.env) {
+  return isLocalSoloCliProductProfile(env) ? LOCAL_SOLO_ROOT_EXAMPLES : ROOT_EXAMPLES;
+}
 
 export function configureProgramHelp(program: Command, ctx: ProgramContext) {
   program
@@ -130,9 +149,12 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
     return `\n${line}\n`;
   });
 
-  const fmtExamples = EXAMPLES.map(
-    ([cmd, desc]) => `  ${theme.command(replaceCliName(cmd, CLI_NAME))}\n    ${theme.muted(desc)}`,
-  ).join("\n");
+  const fmtExamples = getRootHelpExamples()
+    .map(
+      ([cmd, desc]) =>
+        `  ${theme.command(replaceCliName(cmd, CLI_NAME))}\n    ${theme.muted(desc)}`,
+    )
+    .join("\n");
 
   program.addHelpText("afterAll", ({ command }) => {
     if (command !== program) {

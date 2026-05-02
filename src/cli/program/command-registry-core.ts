@@ -110,12 +110,19 @@ const coreEntrySpecs: readonly CommandGroupDescriptorSpec<
     ]),
   ),
   defineImportedCommandGroupSpec(
-    ["agent", "agents"],
+    ["agent"],
     () => import("./register.agent.js"),
     (mod, { program, ctx }) => {
-      mod.registerAgentCommands(program, {
+      mod.registerAgentCommand(program, {
         agentChannelOptions: ctx.agentChannelOptions,
       });
+    },
+  ),
+  defineImportedCommandGroupSpec(
+    ["agents"],
+    () => import("./register.agent.js"),
+    (mod, { program }) => {
+      mod.registerAgentsCommand(program);
     },
   ),
   ...withProgramOnlySpecs(
@@ -130,9 +137,11 @@ const coreEntrySpecs: readonly CommandGroupDescriptorSpec<
 ];
 
 function resolveCoreCommandGroups(ctx: ProgramContext, argv: string[]): CommandGroupEntry[] {
+  const descriptors = getCoreCliCommandDescriptors();
+  const descriptorNames = new Set(descriptors.map((descriptor) => descriptor.name));
   return buildCommandGroupEntries(
-    getCoreCliCommandDescriptors(),
-    coreEntrySpecs,
+    descriptors,
+    coreEntrySpecs.filter((spec) => spec.commandNames.every((name) => descriptorNames.has(name))),
     (register) => async (program) => {
       await register({ program, ctx, argv });
     },

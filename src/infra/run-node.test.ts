@@ -516,6 +516,34 @@ describe("run-node script", () => {
     });
   });
 
+  it("strips a leading npm arg terminator before forwarding args to openclaw", async () => {
+    await withTempDir({ prefix: "openclaw-run-node-" }, async (tmp) => {
+      await setupTrackedProject(tmp);
+      const spawnCalls: string[][] = [];
+      const spawn = (cmd: string, args: string[]) => {
+        spawnCalls.push([cmd, ...args]);
+        return createExitedProcess(0);
+      };
+      const spawnSync = () => ({ status: 0, stdout: "abc123" });
+
+      const exitCode = await runNodeMain({
+        cwd: tmp,
+        args: ["--", "--help"],
+        env: {
+          ...process.env,
+          OPENCLAW_RUNNER_LOG: "0",
+        },
+        spawn,
+        spawnSync,
+        execPath: process.execPath,
+        platform: process.platform,
+      });
+
+      expect(exitCode).toBe(0);
+      expect(spawnCalls).toEqual([[process.execPath, "openclaw.mjs", "--help"]]);
+    });
+  });
+
   it("skips rebuilding when dist is current and the source tree is clean", async () => {
     await withTempDir({ prefix: "openclaw-run-node-" }, async (tmp) => {
       await setupTrackedProject(tmp, {

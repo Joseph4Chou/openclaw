@@ -176,11 +176,17 @@ function readRootPackageJson(): {
   };
 }
 
-function readMatrixPackageJson(): {
-  dependencies?: Record<string, string>;
-  optionalDependencies?: Record<string, string>;
-} {
-  return JSON.parse(readFileSync(resolve(REPO_ROOT, "extensions/matrix/package.json"), "utf8")) as {
+function readExtensionPackageJson(pluginId: string):
+  | {
+      dependencies?: Record<string, string>;
+      optionalDependencies?: Record<string, string>;
+    }
+  | undefined {
+  const packageJsonPath = resolve(REPO_ROOT, "extensions", pluginId, "package.json");
+  if (!existsSync(packageJsonPath)) {
+    return undefined;
+  }
+  return JSON.parse(readFileSync(packageJsonPath, "utf8")) as {
     dependencies?: Record<string, string>;
     optionalDependencies?: Record<string, string>;
   };
@@ -621,8 +627,10 @@ describe("plugin-sdk package contract guardrails", () => {
 
   it("keeps Matrix dependencies local to the Matrix plugin", () => {
     const rootRuntimeDeps = collectRuntimeDependencySpecs(readRootPackageJson());
-    const matrixPackageJson = readMatrixPackageJson();
-    const matrixRuntimeDeps = collectRuntimeDependencySpecs(matrixPackageJson);
+    const matrixPackageJson = readExtensionPackageJson("matrix");
+    const matrixRuntimeDeps = matrixPackageJson
+      ? collectRuntimeDependencySpecs(matrixPackageJson)
+      : undefined;
 
     for (const dep of [
       "@matrix-org/matrix-sdk-crypto-wasm",
@@ -630,7 +638,9 @@ describe("plugin-sdk package contract guardrails", () => {
       "fake-indexeddb",
       "matrix-js-sdk",
     ]) {
-      expect(matrixRuntimeDeps.get(dep)).toBeDefined();
+      if (matrixRuntimeDeps) {
+        expect(matrixRuntimeDeps.get(dep)).toBeDefined();
+      }
       expect(rootRuntimeDeps.has(dep)).toBe(false);
     }
     expect(rootRuntimeDeps.has("@openclaw/plugin-package-contract")).toBe(false);

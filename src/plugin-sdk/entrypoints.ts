@@ -10,21 +10,10 @@ export const reservedBundledPluginSdkEntrypoints = [] as const;
 
 // Supported SDK facades backed by bundled plugins. These are intentionally public
 // until they move to generic, plugin-neutral contracts.
-export const supportedBundledFacadeSdkEntrypoints = [
-  "discord",
-  "lmstudio",
-  "lmstudio-runtime",
-  "memory-core-engine-runtime",
-  "qa-runner-runtime",
-  "telegram-account",
-  "tts-runtime",
-  "zalouser",
-] as const;
+export const supportedBundledFacadeSdkEntrypoints = ["memory-core-engine-runtime"] as const;
 
 // Plugin-owned surfaces that are intentionally public and documented for third-party plugins.
 export const publicPluginOwnedSdkEntrypoints = [
-  "browser-config",
-  "image-generation-core",
   "memory-core-host-engine-embeddings",
   "memory-core-host-engine-foundation",
   "memory-core-host-engine-qmd",
@@ -43,9 +32,6 @@ export const publicPluginOwnedSdkEntrypoints = [
   "memory-host-markdown",
   "memory-host-search",
   "memory-host-status",
-  "speech-core",
-  "telegram-command-config",
-  "video-generation-core",
 ] as const;
 
 /** Map every SDK entrypoint name to its source file path inside the repo. */
