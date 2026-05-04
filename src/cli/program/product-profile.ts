@@ -23,7 +23,7 @@ const LOCAL_SOLO_CORE_COMMANDS = new Set([
   "sessions",
 ]);
 
-const LOCAL_SOLO_SUBCLI_COMMANDS = new Set(["gateway", "models"]);
+const LOCAL_SOLO_SUBCLI_COMMANDS = new Set(["gateway", "models", "skills"]);
 
 export function resolveCliProductProfile(env: NodeJS.ProcessEnv = process.env): CliProductProfile {
   const profile = resolveProductProfile(env);

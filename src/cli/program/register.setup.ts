@@ -6,11 +6,17 @@ import { formatDocsLink } from "../../terminal/links.js";
 import { theme } from "../../terminal/theme.js";
 import { runCommandWithRuntime } from "../cli-utils.js";
 import { hasExplicitOptions } from "../command-options.js";
+import { isLocalSoloCliProductProfile } from "./product-profile.js";
 
 export function registerSetupCommand(program: Command) {
-  program
+  const localSolo = isLocalSoloCliProductProfile();
+  const command = program
     .command("setup")
-    .description("Initialize the active OpenClaw config and agent workspace")
+    .description(
+      localSolo
+        ? "Initialize the active local config and main agent workspace"
+        : "Initialize the active OpenClaw config and agent workspace",
+    )
     .addHelpText(
       "after",
       () =>
@@ -22,12 +28,9 @@ export function registerSetupCommand(program: Command) {
     )
     .option("--wizard", "Run interactive onboarding", false)
     .option("--non-interactive", "Run onboarding without prompts", false)
-    .option("--mode <mode>", "Onboard mode: local|remote")
     .option("--import-from <provider>", "Migration provider to run during onboarding")
     .option("--import-source <path>", "Source agent home for --import-from")
     .option("--import-secrets", "Import supported secrets during onboarding migration", false)
-    .option("--remote-url <url>", "Remote Gateway WebSocket URL")
-    .option("--remote-token <token>", "Remote Gateway token (optional)")
     .action(async (opts, command) => {
       await runCommandWithRuntime(defaultRuntime, async () => {
         const hasWizardFlags = hasExplicitOptions(command, [
@@ -59,4 +62,11 @@ export function registerSetupCommand(program: Command) {
         await setupCommand({ workspace: opts.workspace as string | undefined }, defaultRuntime);
       });
     });
+
+  if (!localSolo) {
+    command
+      .option("--mode <mode>", "Onboard mode: local|remote")
+      .option("--remote-url <url>", "Remote Gateway WebSocket URL")
+      .option("--remote-token <token>", "Remote Gateway token (optional)");
+  }
 }

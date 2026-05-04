@@ -216,8 +216,15 @@ async function runWebConfigureWizard() {
 }
 
 describe("runConfigureWizard", () => {
+  const originalProductProfile = process.env.OPENCLAW_PRODUCT_PROFILE;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    if (originalProductProfile === undefined) {
+      delete process.env.OPENCLAW_PRODUCT_PROFILE;
+    } else {
+      process.env.OPENCLAW_PRODUCT_PROFILE = originalProductProfile;
+    }
     mocks.ensureControlUiAssetsBuilt.mockResolvedValue({ ok: true });
     mocks.resolvePluginContributionOwners.mockReturnValue(["firecrawl"]);
     mocks.resolveSearchProviderOptions.mockReturnValue([
@@ -248,6 +255,28 @@ describe("runConfigureWizard", () => {
     expect(mocks.writeConfigFile).toHaveBeenCalledWith(
       expect.objectContaining({
         gateway: expect.objectContaining({ mode: "local" }),
+      }),
+    );
+  });
+
+  it("skips the local-vs-remote gateway prompt in the local-solo profile", async () => {
+    process.env.OPENCLAW_PRODUCT_PROFILE = "local-solo";
+    setupBaseWizardState();
+    queueWizardPrompts({
+      select: ["__continue"],
+      confirm: [],
+    });
+
+    await runConfigureWizard({ command: "configure" }, createRuntime());
+
+    expect(mocks.clackSelect).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Where will the Gateway run?",
+      }),
+    );
+    expect(mocks.clackSelect).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Select sections to configure",
       }),
     );
   });
@@ -369,6 +398,32 @@ describe("runConfigureWizard", () => {
     );
   });
 
+  it("uses local-solo web tools copy and skips web_search setup when no search provider remains", async () => {
+    process.env.OPENCLAW_PRODUCT_PROFILE = "local-solo";
+    setupBaseWizardState();
+    mocks.resolvePluginContributionOwners.mockReturnValue([]);
+    queueWizardPrompts({
+      confirm: [true],
+      select: [],
+    });
+
+    await runWebConfigureWizard();
+
+    expect(mocks.note).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "No bundled `web_search` provider is available in this local-solo profile.",
+      ),
+      "Web tools",
+    );
+    expect(mocks.clackConfirm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Enable web_fetch (keyless HTTP fetch)?",
+      }),
+    );
+    expect(mocks.resolveSearchProviderOptions).not.toHaveBeenCalled();
+    expect(mocks.setupSearch).not.toHaveBeenCalled();
+  });
+
   it("does not load managed search provider options when web search is disabled", async () => {
     setupBaseWizardState();
     queueWizardPrompts({
@@ -408,6 +463,16 @@ describe("runConfigureWizard", () => {
         skipStatusNote: true,
       }),
     );
+  });
+
+  it("ignores channel sections in the local-solo profile", async () => {
+    process.env.OPENCLAW_PRODUCT_PROFILE = "local-solo";
+    setupBaseWizardState();
+
+    await runConfigureWizard({ command: "configure", sections: ["channels"] }, createRuntime());
+
+    expect(mocks.setupChannels).not.toHaveBeenCalled();
+    expect(mocks.writeConfigFile).not.toHaveBeenCalled();
   });
 
   it("still supports keyless web search providers through the shared setup flow", async () => {

@@ -213,6 +213,49 @@ describe("config form renderer", () => {
     expect(container.textContent).toContain("Plugin Enabled");
   });
 
+  it("renders plugins and skills section descriptions with local-solo wording", () => {
+    const onPatch = vi.fn();
+    const container = document.createElement("div");
+    const schema = {
+      type: "object",
+      properties: {
+        plugins: {
+          type: "object",
+          properties: {
+            entries: {
+              type: "object",
+            },
+          },
+        },
+        skills: {
+          type: "object",
+          properties: {
+            entries: {
+              type: "object",
+            },
+          },
+        },
+      },
+    };
+    const analysis = analyzeConfigSchema(schema);
+
+    render(
+      renderConfigForm({
+        schema: analysis.schema,
+        uiHints: {},
+        unsupportedPaths: analysis.unsupportedPaths,
+        value: {},
+        onPatch,
+      }),
+      container,
+    );
+
+    expect(container.textContent).toContain(
+      "Configure bundled providers, memory, and helper plugins",
+    );
+    expect(container.textContent).toContain("Review the workspace skills kept in this profile");
+  });
+
   it("renders tags from uiHints metadata", () => {
     const onPatch = vi.fn();
     const container = document.createElement("div");

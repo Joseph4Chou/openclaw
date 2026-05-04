@@ -1,7 +1,7 @@
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
 import type { WizardSection } from "./configure.shared.js";
-import { CONFIGURE_WIZARD_SECTIONS, parseConfigureWizardSections } from "./configure.shared.js";
+import { getConfigureWizardSections, parseConfigureWizardSections } from "./configure.shared.js";
 import { runConfigureWizard } from "./configure.wizard.js";
 
 export async function configureCommand(runtime: RuntimeEnv = defaultRuntime) {
@@ -27,7 +27,7 @@ export async function configureCommandFromSectionsArg(
 
   if (invalid.length > 0) {
     runtime.error(
-      `Invalid --section: ${invalid.join(", ")}. Expected one of: ${CONFIGURE_WIZARD_SECTIONS.join(", ")}.`,
+      `Invalid --section: ${invalid.join(", ")}. Expected one of: ${getConfigureWizardSections().join(", ")}.`,
     );
     runtime.exit(1);
     return;

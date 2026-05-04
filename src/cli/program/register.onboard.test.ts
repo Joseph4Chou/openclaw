@@ -57,6 +57,8 @@ vi.mock("../../runtime.js", () => ({
 }));
 
 describe("registerOnboardCommand", () => {
+  const originalProductProfile = process.env.OPENCLAW_PRODUCT_PROFILE;
+
   async function runCli(args: string[]) {
     const program = new Command();
     registerOnboardCommand(program);
@@ -67,6 +69,29 @@ describe("registerOnboardCommand", () => {
     vi.clearAllMocks();
     mocks.runCrestodian.mockResolvedValue(undefined);
     setupWizardCommandMock.mockResolvedValue(undefined);
+    if (originalProductProfile === undefined) {
+      delete process.env.OPENCLAW_PRODUCT_PROFILE;
+    } else {
+      process.env.OPENCLAW_PRODUCT_PROFILE = originalProductProfile;
+    }
+  });
+
+  it("hides remote and channel-centric onboarding flags in the local-solo profile", () => {
+    process.env.OPENCLAW_PRODUCT_PROFILE = "local-solo";
+
+    const program = new Command();
+    registerOnboardCommand(program);
+    const help = program.commands[0]?.helpInformation() ?? "";
+
+    expect(help).toContain("Interactive local setup");
+    expect(help).not.toContain("--mode <mode>");
+    expect(help).not.toContain("--remote-url <url>");
+    expect(help).not.toContain("--remote-token <token>");
+    expect(help).not.toContain("--skip-channels");
+    expect(help).not.toContain("--skip-search");
+    expect(help).not.toContain("--tailscale <mode>");
+    expect(help).toContain("--skip-skills");
+    expect(help).toContain("--gateway-port <port>");
   });
 
   it("defaults installDaemon to undefined when no daemon flags are provided", async () => {

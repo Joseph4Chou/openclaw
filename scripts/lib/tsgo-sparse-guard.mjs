@@ -15,10 +15,6 @@ const CORE_SPARSE_ROOTS = ["packages", "ui/src"];
 
 const CORE_PROD_REQUIRED_PATHS = [
   {
-    path: "apps/shared/OpenClawKit/Sources/OpenClawKit/Resources/tool-display.json",
-    whenPresent: "ui/src/ui/tool-display.ts",
-  },
-  {
     path: "scripts/lib/bundled-runtime-sidecar-paths.json",
     whenPresent: "src/plugins/runtime-sidecar-paths.ts",
   },

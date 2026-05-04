@@ -147,6 +147,7 @@ describe("configureProgramHelp", () => {
 
     const help = captureHelpOutput(program);
     expect(help).toContain("openclaw setup");
+    expect(help).toContain("openclaw skills list");
     expect(help).toContain('openclaw agent --local --message "Summarize this workspace"');
     expect(help).not.toContain("openclaw channels login --verbose");
     expect(help).not.toContain('openclaw message send --target +15555550123 --message "Hi" --json');

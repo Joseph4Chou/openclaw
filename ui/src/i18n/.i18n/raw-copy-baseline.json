@@ -83,7 +83,7 @@
       "kind": "object-property",
       "name": "title",
       "path": "ui/src/ui/app-settings.ts",
-      "text": "Skills with missing dependencies"
+      "text": "Workspace skills with missing requirements"
     },
     {
       "count": 1,
@@ -538,14 +538,14 @@
       "kind": "html-attribute",
       "name": "placeholder",
       "path": "ui/src/ui/views/agents-panels-tools-skills.ts",
-      "text": "Search skills"
+      "text": "Search workspace skills"
     },
     {
       "count": 1,
       "kind": "html-attribute",
       "name": "title",
       "path": "ui/src/ui/views/agents-panels-tools-skills.ts",
-      "text": "Remove per-agent allowlist and use all skills"
+      "text": "Remove the per-agent allowlist and use all kept skills"
     },
     {
       "count": 2,
@@ -559,7 +559,7 @@
       "kind": "html-text",
       "name": "text",
       "path": "ui/src/ui/views/agents-panels-tools-skills.ts",
-      "text": "All skills are enabled. Disabling any skill will create a per-agent allowlist."
+      "text": "All kept workspace skills are enabled. Disabling any skill will create a per-agent allowlist."
     },
     {
       "count": 1,
@@ -664,7 +664,7 @@
       "kind": "html-text",
       "name": "text",
       "path": "ui/src/ui/views/agents-panels-tools-skills.ts",
-      "text": "Load skills for this agent to view workspace-specific entries."
+      "text": "Load skills for this agent to review its available workspace skills."
     },
     {
       "count": 1,
@@ -678,7 +678,7 @@
       "kind": "html-text",
       "name": "text",
       "path": "ui/src/ui/views/agents-panels-tools-skills.ts",
-      "text": "Load the gateway config to set per-agent skills."
+      "text": "Load the gateway config to review per-agent workspace skills."
     },
     {
       "count": 1,
@@ -699,14 +699,14 @@
       "kind": "html-text",
       "name": "text",
       "path": "ui/src/ui/views/agents-panels-tools-skills.ts",
-      "text": "No skills found."
+      "text": "No tools are available for this session right now."
     },
     {
       "count": 1,
       "kind": "html-text",
       "name": "text",
       "path": "ui/src/ui/views/agents-panels-tools-skills.ts",
-      "text": "No tools are available for this session right now."
+      "text": "No workspace skills found."
     },
     {
       "count": 1,
@@ -783,7 +783,7 @@
       "kind": "html-text",
       "name": "text",
       "path": "ui/src/ui/views/agents-panels-tools-skills.ts",
-      "text": "This agent uses a custom skill allowlist."
+      "text": "This agent uses a custom workspace-skill allowlist."
     },
     {
       "count": 1,
@@ -1763,6 +1763,13 @@
       "kind": "object-property",
       "name": "description",
       "path": "ui/src/ui/views/config-form.render.ts",
+      "text": "Configure bundled providers, memory, and helper plugins"
+    },
+    {
+      "count": 1,
+      "kind": "object-property",
+      "name": "description",
+      "path": "ui/src/ui/views/config-form.render.ts",
       "text": "Custom slash commands"
     },
     {
@@ -1833,7 +1840,7 @@
       "kind": "object-property",
       "name": "description",
       "path": "ui/src/ui/views/config-form.render.ts",
-      "text": "Plugin management and extensions"
+      "text": "Review the workspace skills kept in this profile"
     },
     {
       "count": 1,
@@ -1869,13 +1876,6 @@
       "name": "description",
       "path": "ui/src/ui/views/config-form.render.ts",
       "text": "Setup wizard state and history"
-    },
-    {
-      "count": 1,
-      "kind": "object-property",
-      "name": "description",
-      "path": "ui/src/ui/views/config-form.render.ts",
-      "text": "Skill packs and capabilities"
     },
     {
       "count": 1,
@@ -4213,7 +4213,7 @@
       "kind": "html-attribute",
       "name": "placeholder",
       "path": "ui/src/ui/views/skills.ts",
-      "text": "Filter installed skills"
+      "text": "Filter workspace skills"
     },
     {
       "count": 1,
@@ -4228,6 +4228,13 @@
       "name": "text",
       "path": "ui/src/ui/views/skills.ts",
       "text": "API key"
+    },
+    {
+      "count": 1,
+      "kind": "html-text",
+      "name": "text",
+      "path": "ui/src/ui/views/skills.ts",
+      "text": "Browse and install additional skills from ClawHub"
     },
     {
       "count": 1,
@@ -4255,13 +4262,6 @@
       "kind": "html-text",
       "name": "text",
       "path": "ui/src/ui/views/skills.ts",
-      "text": "Installed skills and their status."
-    },
-    {
-      "count": 1,
-      "kind": "html-text",
-      "name": "text",
-      "path": "ui/src/ui/views/skills.ts",
       "text": "Missing requirements"
     },
     {
@@ -4276,14 +4276,14 @@
       "kind": "html-text",
       "name": "text",
       "path": "ui/src/ui/views/skills.ts",
-      "text": "Save key"
+      "text": "Review the workspace skills kept in this profile."
     },
     {
       "count": 1,
       "kind": "html-text",
       "name": "text",
       "path": "ui/src/ui/views/skills.ts",
-      "text": "Search and install skills from the registry"
+      "text": "Save key"
     },
     {
       "count": 1,

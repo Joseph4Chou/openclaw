@@ -3,6 +3,7 @@ import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import type { RuntimeEnv } from "../runtime.js";
+import { isLocalSoloProductProfile } from "../shared/product-profile.js";
 import { normalizeSecretInput } from "../utils/normalize-secret-input.js";
 import type { WizardPrompter } from "../wizard/prompts.js";
 import { detectBinary, resolveNodeManagerOptions } from "./onboard-helpers.js";
@@ -53,6 +54,7 @@ export async function setupSkills(
   runtime: RuntimeEnv,
   prompter: WizardPrompter,
 ): Promise<OpenClawConfig> {
+  const localSolo = isLocalSoloProductProfile();
   const report = buildWorkspaceSkillStatus(workspaceDir, { config: cfg });
   const eligible = report.skills.filter((s) => s.eligible);
   const unsupportedOs = report.skills.filter(
@@ -65,16 +67,19 @@ export async function setupSkills(
 
   await prompter.note(
     [
+      ...(localSolo
+        ? ["Only the workspace skills kept in this local-solo profile appear here."]
+        : []),
       `Eligible: ${eligible.length}`,
       `Missing requirements: ${missing.length}`,
       `Unsupported on this OS: ${unsupportedOs.length}`,
       `Blocked by allowlist: ${blocked.length}`,
     ].join("\n"),
-    "Skills status",
+    localSolo ? "Workspace skills" : "Skills status",
   );
 
   const shouldConfigure = await prompter.confirm({
-    message: "Configure skills now? (recommended)",
+    message: localSolo ? "Review workspace skills now?" : "Configure skills now? (recommended)",
     initialValue: true,
   });
   if (!shouldConfigure) {
@@ -87,7 +92,9 @@ export async function setupSkills(
   let next: OpenClawConfig = cfg;
   if (installable.length > 0) {
     const toInstall = await prompter.multiselect({
-      message: "Install missing skill dependencies",
+      message: localSolo
+        ? "Install missing requirements for selected skills"
+        : "Install missing skill dependencies",
       options: [
         {
           value: "__skip__",
@@ -116,7 +123,9 @@ export async function setupSkills(
     if (needsBrewPrompt) {
       await prompter.note(
         [
-          "Many skill dependencies are shipped via Homebrew.",
+          localSolo
+            ? "Some kept workspace skills install their dependencies via Homebrew."
+            : "Many skill dependencies are shipped via Homebrew.",
           "Without brew, you'll need to build from source or download releases manually.",
         ].join("\n"),
         "Homebrew recommended",
@@ -141,7 +150,9 @@ export async function setupSkills(
     );
     if (needsNodeManagerPrompt) {
       const nodeManager = (await prompter.select({
-        message: "Preferred node manager for skill installs",
+        message: localSolo
+          ? "Preferred node manager for workspace skills"
+          : "Preferred node manager for skill installs",
         options: resolveNodeManagerOptions(),
       })) as "npm" | "pnpm" | "bun";
       next = {

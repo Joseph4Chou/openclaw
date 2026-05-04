@@ -261,6 +261,7 @@ describe("registerSubCliCommands", () => {
     const names = program.commands.map((cmd) => cmd.name());
     expect(names).toContain("gateway");
     expect(names).toContain("models");
+    expect(names).toContain("skills");
     expect(names).not.toContain("channels");
     expect(names).not.toContain("docs");
     expect(names).not.toContain("nodes");

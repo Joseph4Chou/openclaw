@@ -7,11 +7,25 @@ export type ProductProfile = "default" | "local-solo";
 const LOCAL_SOLO_PROFILE_ALIASES = new Set(["local-solo", "localsolo", "solo", "single-user"]);
 
 const LOCAL_SOLO_BUNDLED_PLUGIN_IDS = new Set([
+  "active-memory",
+  "alibaba",
+  "anthropic",
+  "copilot-proxy",
+  "deepseek",
   "document-extract",
   "file-transfer",
+  "github-copilot",
+  "memory-lancedb",
+  "memory-wiki",
   "memory-core",
-  "ollama",
+  "minimax",
+  "moonshot",
+  "nvidia",
   "openai",
+  "qqbot",
+  "qwen",
+  "stepfun",
+  "tencent",
   "web-readability",
 ]);
 

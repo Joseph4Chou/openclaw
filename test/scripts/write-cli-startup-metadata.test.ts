@@ -32,14 +32,40 @@ describe("write-cli-startup-metadata", () => {
     await writeCliStartupMetadata({ distDir, outputPath, extensionsDir });
 
     const written = JSON.parse(readFileSync(outputPath, "utf8")) as {
+      browserHelpSourceSignature: string;
       browserHelpText: string;
       channelOptions: string[];
       rootHelpText: string;
     };
     expect(written.channelOptions).toContain("matrix");
-    expect(written.browserHelpText).toContain("Usage:");
-    expect(written.browserHelpText).toContain("openclaw browser");
+    if (written.browserHelpSourceSignature === "missing") {
+      expect(written.browserHelpText).toBe("");
+    } else {
+      expect(written.browserHelpText).toContain("Usage:");
+      expect(written.browserHelpText).toContain("openclaw browser");
+    }
     expect(written.rootHelpText).toContain("Usage:");
     expect(written.rootHelpText).toContain("openclaw");
+  });
+
+  it("writes empty browser help text when the browser extension source is absent", async () => {
+    const tempRoot = createTempDir("openclaw-startup-metadata-");
+    const distDir = path.join(tempRoot, "dist");
+    const extensionsDir = path.join(tempRoot, "extensions");
+    const outputPath = path.join(distDir, "cli-startup-metadata.json");
+
+    mkdirSync(distDir, { recursive: true });
+    mkdirSync(extensionsDir, { recursive: true });
+
+    await writeCliStartupMetadata({ distDir, outputPath, extensionsDir });
+
+    const written = JSON.parse(readFileSync(outputPath, "utf8")) as {
+      browserHelpSourceSignature: string;
+      browserHelpText: string;
+      rootHelpText: string;
+    };
+    expect(written.browserHelpSourceSignature).toBe("missing");
+    expect(written.browserHelpText).toBe("");
+    expect(written.rootHelpText).toContain("Usage:");
   });
 });

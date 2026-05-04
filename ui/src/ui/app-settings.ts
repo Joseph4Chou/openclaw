@@ -667,7 +667,7 @@ async function loadOverviewLogs(host: SettingsAppHost) {
   }
 }
 
-function buildAttentionItems(host: SettingsAppHost) {
+export function buildAttentionItems(host: SettingsAppHost) {
   const items: AttentionItem[] = [];
 
   if (host.lastError) {
@@ -701,7 +701,7 @@ function buildAttentionItems(host: SettingsAppHost) {
     items.push({
       severity: "warning",
       icon: "zap",
-      title: "Skills with missing dependencies",
+      title: "Workspace skills with missing requirements",
       description: `${names.join(", ")}${more}`,
     });
   }
@@ -711,7 +711,7 @@ function buildAttentionItems(host: SettingsAppHost) {
     items.push({
       severity: "warning",
       icon: "shield",
-      title: `${blocked.length} skill${blocked.length > 1 ? "s" : ""} blocked`,
+      title: `${blocked.length} workspace skill${blocked.length > 1 ? "s" : ""} limited by allowlist`,
       description: blocked.map((s) => s.name).join(", "),
     });
   }

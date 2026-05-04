@@ -61,6 +61,52 @@ function createOverviewProps(overrides: Partial<OverviewProps> = {}): OverviewPr
 }
 
 describe("overview view rendering", () => {
+  it("uses workspace-skills wording in the overview stats cards", async () => {
+    const container = document.createElement("div");
+    const props = createOverviewProps({
+      usageResult: {
+        totals: { totalCost: 0, totalTokens: 0 },
+        aggregates: { messages: { total: 0 } },
+      } as OverviewProps["usageResult"],
+      sessionsResult: {
+        count: 2,
+        sessions: [],
+      } as OverviewProps["sessionsResult"],
+      skillsReport: {
+        workspaceDir: "/tmp/workspace",
+        managedSkillsDir: "/tmp/skills",
+        skills: [
+          {
+            name: "nano-pdf",
+            description: "Read PDFs",
+            source: "openclaw-workspace",
+            filePath: "/tmp/skill",
+            baseDir: "/tmp",
+            skillKey: "nano-pdf",
+            bundled: false,
+            primaryEnv: undefined,
+            emoji: undefined,
+            homepage: undefined,
+            always: false,
+            disabled: false,
+            blockedByAllowlist: true,
+            eligible: true,
+            requirements: { bins: [], env: [], config: [], os: [] },
+            missing: { bins: [], env: [], config: [], os: [] },
+            configChecks: [],
+            install: [],
+          },
+        ],
+      },
+    });
+
+    render(renderOverview(props), container);
+    await Promise.resolve();
+
+    expect(container.textContent).toContain("1/1");
+    expect(container.textContent).toContain("1 limited by allowlist");
+  });
+
   it("keeps the persisted overview locale selected before i18n hydration finishes", async () => {
     const container = document.createElement("div");
     const props = createOverviewProps({

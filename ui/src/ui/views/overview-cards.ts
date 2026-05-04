@@ -128,7 +128,7 @@ export function renderOverviewCards(props: OverviewCardsProps) {
       tab: "skills",
       label: t("overview.cards.skills"),
       value: `${enabledSkills}/${totalSkills}`,
-      hint: blockedSkills > 0 ? `${blockedSkills} blocked` : `${enabledSkills} active`,
+      hint: blockedSkills > 0 ? `${blockedSkills} limited by allowlist` : `${enabledSkills} ready`,
     },
     {
       kind: "cron",

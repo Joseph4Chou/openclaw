@@ -142,7 +142,7 @@ export function renderSkills(props: SkillsProps) {
       <div class="row" style="justify-content: space-between;">
         <div>
           <div class="card-title">Skills</div>
-          <div class="card-sub">Installed skills and their status.</div>
+          <div class="card-sub">Review the workspace skills kept in this profile.</div>
         </div>
         <button
           class="btn"
@@ -174,7 +174,7 @@ export function renderSkills(props: SkillsProps) {
           <input
             .value=${props.filter}
             @input=${(e: Event) => props.onFilterChange((e.target as HTMLInputElement).value)}
-            placeholder="Filter installed skills"
+            placeholder="Filter workspace skills"
             autocomplete="off"
             name="skills-filter"
           />
@@ -186,7 +186,7 @@ export function renderSkills(props: SkillsProps) {
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
           <div style="font-weight: 600;">ClawHub</div>
           <div class="muted" style="font-size: 13px;">
-            Search and install skills from the registry
+            Browse and install additional skills from ClawHub
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
@@ -226,7 +226,7 @@ export function renderSkills(props: SkillsProps) {
             <div class="muted" style="margin-top: 16px">
               ${!props.connected && !props.report
                 ? "Not connected to gateway."
-                : "No skills found."}
+                : "No workspace skills found."}
             </div>
           `
         : html`

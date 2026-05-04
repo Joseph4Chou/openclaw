@@ -25,6 +25,8 @@ const rootDir = path.resolve(scriptDir, "..");
 const distDir = path.join(rootDir, "dist");
 const outputPath = path.join(distDir, "cli-startup-metadata.json");
 const extensionsDir = path.join(rootDir, "extensions");
+const browserCliDir = path.join(rootDir, "extensions/browser/src/cli");
+const browserCliEntryPath = path.join(browserCliDir, "browser-cli.ts");
 const ROOT_HELP_RENDER_TIMEOUT_MS = 120_000;
 const BROWSER_HELP_RENDER_TIMEOUT_MS = 120_000;
 const CORE_CHANNEL_ORDER = [
@@ -80,8 +82,10 @@ function updateHashFromFiles(hash: ReturnType<typeof createHash>, files: string[
 }
 
 function resolveBrowserHelpSourceSignature(): string {
+  if (!existsSync(browserCliDir)) {
+    return "missing";
+  }
   const hash = createHash("sha1");
-  const browserCliDir = path.join(rootDir, "extensions/browser/src/cli");
   const browserCliFiles = readdirSync(browserCliDir)
     .filter((entry) => entry.endsWith(".ts"))
     .map((entry) => path.join(browserCliDir, entry));
@@ -268,9 +272,10 @@ function renderSourceRootHelpText(
 function renderSourceBrowserHelpText(
   renderContext: RootHelpRenderContext = createIsolatedRootHelpRenderContext(),
 ): string {
-  const browserCliUrl = pathToFileURL(
-    path.join(rootDir, "extensions/browser/src/cli/browser-cli.ts"),
-  ).href;
+  if (!existsSync(browserCliEntryPath)) {
+    return "";
+  }
+  const browserCliUrl = pathToFileURL(browserCliEntryPath).href;
   const helpUrl = pathToFileURL(path.join(rootDir, "src/cli/program/help.ts")).href;
   const contextUrl = pathToFileURL(path.join(rootDir, "src/cli/program/context.ts")).href;
   const inlineModule = [
@@ -341,8 +346,7 @@ export async function writeCliStartupMetadata(options?: {
       existing.rootHelpBundleSignature === bundleIdentity.signature &&
       existing.browserHelpSourceSignature === browserHelpSourceSignature &&
       existing.channelCatalogSignature === channelCatalog.signature &&
-      typeof existing.browserHelpText === "string" &&
-      existing.browserHelpText.length > 0
+      typeof existing.browserHelpText === "string"
     ) {
       return;
     }

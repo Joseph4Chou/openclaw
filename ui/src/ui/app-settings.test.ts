@@ -4,6 +4,7 @@ import {
   applyResolvedTheme,
   applySettings,
   applySettingsFromUrl,
+  buildAttentionItems,
   setTabFromRoute,
   syncThemeWithSettings,
 } from "./app-settings.ts";
@@ -372,6 +373,59 @@ describe("setTabFromRoute", () => {
     expect(host.themeResolved).toBe("custom-light");
     expect(root.dataset.theme).toBe("custom-light");
     expect(root.style.colorScheme).toBe("light");
+  });
+
+  it("uses workspace-skills wording in attention warnings", () => {
+    const host = {
+      lastError: null,
+      hello: null,
+      skillsReport: {
+        workspaceDir: "/tmp/workspace",
+        managedSkillsDir: "/tmp/skills",
+        skills: [
+          {
+            name: "nano-pdf",
+            description: "Read PDFs",
+            source: "openclaw-workspace",
+            filePath: "/tmp/skill",
+            baseDir: "/tmp",
+            skillKey: "nano-pdf",
+            bundled: false,
+            primaryEnv: undefined,
+            emoji: undefined,
+            homepage: undefined,
+            always: false,
+            disabled: false,
+            blockedByAllowlist: true,
+            eligible: false,
+            requirements: { bins: ["pdftotext"], env: [], config: [], os: [] },
+            missing: { bins: ["pdftotext"], env: [], config: [], os: [] },
+            configChecks: [],
+            install: [],
+          },
+        ],
+      },
+      cronJobs: [],
+      attentionItems: [],
+    } as { attentionItems: Array<{ title: string; description: string }> } & Record<
+      string,
+      unknown
+    >;
+
+    buildAttentionItems(host as never);
+
+    expect(host.attentionItems).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: "Workspace skills with missing requirements",
+          description: "nano-pdf",
+        }),
+        expect.objectContaining({
+          title: "1 workspace skill limited by allowlist",
+          description: "nano-pdf",
+        }),
+      ]),
+    );
   });
 });
 

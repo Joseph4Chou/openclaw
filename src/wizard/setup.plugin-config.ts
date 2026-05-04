@@ -2,6 +2,7 @@ import type { OpenClawConfig } from "../config/types.openclaw.js";
 import type { PluginConfigUiHint } from "../plugins/types.js";
 import { getPath, setPathCreateStrict } from "../secrets/path-utils.js";
 import type { JsonSchemaObject } from "../shared/json-schema.types.js";
+import { isLocalSoloProductProfile } from "../shared/product-profile.js";
 import type { WizardPrompter } from "./prompts.js";
 
 /**
@@ -362,6 +363,7 @@ export async function configurePluginConfig(params: {
   prompter: WizardPrompter;
   workspaceDir?: string;
 }): Promise<OpenClawConfig> {
+  const localSolo = isLocalSoloProductProfile();
   const { loadPluginManifestRegistryForPluginRegistry } = await loadPluginRegistryModule();
   const registry = loadPluginManifestRegistryForPluginRegistry({
     config: params.config,
@@ -377,12 +379,27 @@ export async function configurePluginConfig(params: {
   });
 
   if (configurable.length === 0) {
-    await params.prompter.note("No plugins with configurable fields found.", "Plugins");
+    await params.prompter.note(
+      localSolo
+        ? "No bundled plugins in this local-solo profile expose configurable fields."
+        : "No plugins with configurable fields found.",
+      localSolo ? "Bundled plugins" : "Plugins",
+    );
     return params.config;
   }
 
+  if (localSolo) {
+    await params.prompter.note(
+      [
+        "Only bundled plugins still exposed in this local-solo profile appear here.",
+        "This usually includes model providers, memory, and document/web helpers.",
+      ].join("\n"),
+      "Bundled plugins",
+    );
+  }
+
   const selected = await params.prompter.select({
-    message: "Select plugin to configure",
+    message: localSolo ? "Select bundled plugin to configure" : "Select plugin to configure",
     options: [
       ...configurable.map((p) => {
         const existing = getExistingPluginConfig(params.config, p.id);
@@ -394,10 +411,10 @@ export async function configurePluginConfig(params: {
         return {
           value: p.id,
           label: p.name,
-          hint: `${configuredCount}/${totalCount} configured`,
+          hint: `${configuredCount}/${totalCount} fields set`,
         };
       }),
-      { value: "__skip__", label: "Back", hint: "Return to section menu" },
+      { value: "__skip__", label: "Back", hint: "Return to configure sections" },
     ],
     searchable: true,
   });

@@ -17,6 +17,7 @@ import { defaultRuntime } from "../../runtime.js";
 import { formatDocsLink } from "../../terminal/links.js";
 import { theme } from "../../terminal/theme.js";
 import { runCommandWithRuntime } from "../cli-utils.js";
+import { isLocalSoloCliProductProfile } from "./product-profile.js";
 
 function resolveInstallDaemonFlag(
   command: unknown,
@@ -90,9 +91,14 @@ function pickOnboardProviderAuthOptionValues(
 }
 
 export function registerOnboardCommand(program: Command) {
+  const localSolo = isLocalSoloCliProductProfile();
   const command = program
     .command("onboard")
-    .description("Interactive onboarding for the gateway, workspace, and skills")
+    .description(
+      localSolo
+        ? "Interactive local setup for the gateway, workspace, and skills"
+        : "Interactive onboarding for the gateway, workspace, and skills",
+    )
     .addHelpText(
       "after",
       () =>
@@ -111,8 +117,13 @@ export function registerOnboardCommand(program: Command) {
       "Acknowledge that agents are powerful and full system access is risky (required for --non-interactive)",
       false,
     )
-    .option("--flow <flow>", "Onboard flow: quickstart|advanced|manual|import")
-    .option("--mode <mode>", "Onboard mode: local|remote")
+    .option("--flow <flow>", "Onboard flow: quickstart|advanced|manual|import");
+
+  if (!localSolo) {
+    command.option("--mode <mode>", "Onboard mode: local|remote");
+  }
+
+  command
     .option("--auth-choice <choice>", `Auth: ${AUTH_CHOICE_HELP}`)
     .option(
       "--token-provider <id>",
@@ -147,7 +158,12 @@ export function registerOnboardCommand(program: Command) {
     .option("--custom-image-input", "Mark the custom provider model as image-capable")
     .option("--custom-text-input", "Mark the custom provider model as text-only")
     .option("--gateway-port <port>", "Gateway port")
-    .option("--gateway-bind <mode>", "Gateway bind: loopback|tailnet|lan|auto|custom")
+    .option(
+      "--gateway-bind <mode>",
+      localSolo
+        ? "Gateway bind: loopback|lan|auto|custom"
+        : "Gateway bind: loopback|tailnet|lan|auto|custom",
+    )
     .option("--gateway-auth <mode>", "Gateway auth: token|password")
     .option("--gateway-token <token>", "Gateway token (token auth)")
     .option(
@@ -155,25 +171,29 @@ export function registerOnboardCommand(program: Command) {
       "Gateway token SecretRef env var name (token auth; e.g. OPENCLAW_GATEWAY_TOKEN)",
     )
     .option("--gateway-password <password>", "Gateway password (password auth)")
-    .option("--remote-url <url>", "Remote Gateway WebSocket URL")
-    .option("--remote-token <token>", "Remote Gateway token (optional)")
-    .option("--tailscale <mode>", "Tailscale: off|serve|funnel")
-    .option("--tailscale-reset-on-exit", "Reset tailscale serve/funnel on exit")
     .option("--install-daemon", "Install gateway service")
     .option("--no-install-daemon", "Skip gateway service install")
     .option("--skip-daemon", "Skip gateway service install")
     .option("--daemon-runtime <runtime>", "Daemon runtime: node|bun")
-    .option("--skip-channels", "Skip channel setup")
     .option("--skip-skills", "Skip skills setup")
     .option("--skip-bootstrap", "Skip creating default agent workspace files")
-    .option("--skip-search", "Skip search provider setup")
     .option("--skip-health", "Skip health check")
-    .option("--skip-ui", "Skip Control UI/TUI prompts")
+    .option("--skip-ui", localSolo ? "Skip Control UI prompts" : "Skip Control UI/TUI prompts")
     .option("--node-manager <name>", "Node manager for skills: npm|pnpm|bun")
     .option("--import-from <provider>", "Migration provider to run during onboarding")
     .option("--import-source <path>", "Source agent home for --import-from")
     .option("--import-secrets", "Import supported secrets during onboarding migration", false)
     .option("--json", "Output JSON summary", false);
+
+  if (!localSolo) {
+    command
+      .option("--remote-url <url>", "Remote Gateway WebSocket URL")
+      .option("--remote-token <token>", "Remote Gateway token (optional)")
+      .option("--tailscale <mode>", "Tailscale: off|serve|funnel")
+      .option("--tailscale-reset-on-exit", "Reset tailscale serve/funnel on exit")
+      .option("--skip-channels", "Skip channel setup")
+      .option("--skip-search", "Skip search provider setup");
+  }
 
   command.action(async (opts, commandRuntime) => {
     await runCommandWithRuntime(defaultRuntime, async () => {

@@ -21,12 +21,13 @@ const coreCliCommandCatalog = defineCommandDescriptorCatalog([
   },
   {
     name: "onboard",
-    description: "Interactive onboarding for gateway, workspace, and skills",
+    description: "Interactive setup for the gateway, workspace, and skills",
     hasSubcommands: false,
   },
   {
     name: "configure",
-    description: "Interactive configuration for credentials, channels, gateway, and agent defaults",
+    description:
+      "Interactive configuration for credentials, gateway, web tools, and agent defaults",
     hasSubcommands: false,
   },
   {
@@ -47,7 +48,7 @@ const coreCliCommandCatalog = defineCommandDescriptorCatalog([
   },
   {
     name: "doctor",
-    description: "Health checks + quick fixes for the gateway and channels",
+    description: "Health checks + quick fixes for the gateway and workspace",
     hasSubcommands: false,
   },
   {
@@ -87,7 +88,7 @@ const coreCliCommandCatalog = defineCommandDescriptorCatalog([
   },
   {
     name: "status",
-    description: "Show channel health and recent session recipients",
+    description: "Show gateway health and recent session activity",
     hasSubcommands: false,
   },
   {

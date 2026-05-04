@@ -186,4 +186,45 @@ describe("setupSkills", () => {
     const brewNote = notes.find((n) => n.title === "Homebrew recommended");
     expect(brewNote).toBeDefined();
   });
+
+  it("uses local-solo workspace skills copy during configure", async () => {
+    const originalProductProfile = process.env.OPENCLAW_PRODUCT_PROFILE;
+    process.env.OPENCLAW_PRODUCT_PROFILE = "local-solo";
+
+    mockMissingBrewStatus([
+      createBundledSkill({
+        name: "nano-pdf",
+        description: "Read PDFs",
+        bins: ["pdftotext"],
+        installLabel: "Install poppler (brew)",
+      }),
+    ]);
+
+    const { prompter, notes } = createPrompter({ multiselect: ["__skip__"] });
+
+    try {
+      await setupSkills({} as OpenClawConfig, "/tmp/ws", runtime, prompter);
+    } finally {
+      if (originalProductProfile === undefined) {
+        delete process.env.OPENCLAW_PRODUCT_PROFILE;
+      } else {
+        process.env.OPENCLAW_PRODUCT_PROFILE = originalProductProfile;
+      }
+    }
+
+    const status = notes.find((n) => n.title === "Workspace skills")?.message ?? "";
+    expect(status).toContain(
+      "Only the workspace skills kept in this local-solo profile appear here.",
+    );
+    expect(prompter.confirm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Review workspace skills now?",
+      }),
+    );
+    expect(prompter.multiselect).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Install missing requirements for selected skills",
+      }),
+    );
+  });
 });

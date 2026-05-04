@@ -3,6 +3,7 @@ import type { OpenClawConfig } from "../config/config.js";
 import type { PluginConfigUiHint } from "../plugins/types.js";
 import type { WizardPrompter } from "./prompts.js";
 import {
+  configurePluginConfig,
   discoverConfigurablePlugins,
   discoverUnconfiguredPlugins,
   setupPluginConfig,
@@ -385,5 +386,65 @@ describe("setupPluginConfig", () => {
     expect(result.plugins?.entries?.["retry-plugin"]?.config).toEqual({
       retries: 3,
     });
+  });
+
+  it("uses bundled plugin copy in the local-solo configure flow", async () => {
+    const originalProductProfile = process.env.OPENCLAW_PRODUCT_PROFILE;
+    process.env.OPENCLAW_PRODUCT_PROFILE = "local-solo";
+    loadPluginManifestRegistry.mockReturnValue({
+      plugins: [
+        {
+          ...makeManifestPlugin("memory-wiki", {
+            enabled: { label: "Enable wiki" },
+          }),
+          enabledByDefault: true,
+        },
+      ],
+    });
+
+    const note = vi.fn(async () => {});
+    const select = vi.fn(async () => "__skip__") as unknown as WizardPrompter["select"];
+
+    try {
+      await configurePluginConfig({
+        config: {
+          plugins: {
+            entries: {
+              "memory-wiki": {
+                enabled: true,
+              },
+            },
+          },
+        },
+        prompter: {
+          intro: vi.fn(async () => {}),
+          outro: vi.fn(async () => {}),
+          note,
+          select,
+          multiselect: vi.fn(async () => []) as unknown as WizardPrompter["multiselect"],
+          text: vi.fn(async () => ""),
+          confirm: vi.fn(async () => true),
+          progress: vi.fn(() => ({ update: vi.fn(), stop: vi.fn() })),
+        },
+      });
+    } finally {
+      if (originalProductProfile === undefined) {
+        delete process.env.OPENCLAW_PRODUCT_PROFILE;
+      } else {
+        process.env.OPENCLAW_PRODUCT_PROFILE = originalProductProfile;
+      }
+    }
+
+    expect(note).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "Only bundled plugins still exposed in this local-solo profile appear here.",
+      ),
+      "Bundled plugins",
+    );
+    expect(select).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Select bundled plugin to configure",
+      }),
+    );
   });
 });

@@ -50,6 +50,7 @@ const LOCAL_SOLO_ROOT_EXAMPLES = [
   ["openclaw setup", "Initialize local config and agent workspace."],
   ["openclaw configure", "Update gateway, model, and agent defaults interactively."],
   ["openclaw config validate", "Validate the current local configuration file."],
+  ["openclaw skills list", "Inspect the skills kept in this local-solo workspace."],
   ["openclaw gateway --port 18789", "Run the WebSocket Gateway locally."],
   ["openclaw --dev gateway", "Run a dev Gateway (isolated state/config) on ws://127.0.0.1:19001."],
   [

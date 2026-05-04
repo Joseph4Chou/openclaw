@@ -708,7 +708,7 @@ export function renderAgentSkills(params: {
         <div style="min-width: 0;">
           <div class="card-title">Skills</div>
           <div class="card-sub">
-            Per-agent skill allowlist and workspace skills.
+            Choose which kept workspace skills this agent can use.
             ${totalCount > 0
               ? html`<span class="mono">${enabledCount}/${totalCount}</span>`
               : nothing}
@@ -737,7 +737,7 @@ export function renderAgentSkills(params: {
               class="btn btn--sm"
               ?disabled=${!editable || !usingAllowlist}
               @click=${() => params.onClear(params.agentId)}
-              title="Remove per-agent allowlist and use all skills"
+              title="Remove the per-agent allowlist and use all kept skills"
             >
               Reset
             </button>
@@ -765,25 +765,26 @@ export function renderAgentSkills(params: {
       ${!params.configForm
         ? html`
             <div class="callout info" style="margin-top: 12px">
-              Load the gateway config to set per-agent skills.
+              Load the gateway config to review per-agent workspace skills.
             </div>
           `
         : nothing}
       ${usingAllowlist
         ? html`
             <div class="callout info" style="margin-top: 12px">
-              This agent uses a custom skill allowlist.
+              This agent uses a custom workspace-skill allowlist.
             </div>
           `
         : html`
             <div class="callout info" style="margin-top: 12px">
-              All skills are enabled. Disabling any skill will create a per-agent allowlist.
+              All kept workspace skills are enabled. Disabling any skill will create a per-agent
+              allowlist.
             </div>
           `}
       ${!reportReady && !params.loading
         ? html`
             <div class="callout info" style="margin-top: 12px">
-              Load skills for this agent to view workspace-specific entries.
+              Load skills for this agent to review its available workspace skills.
             </div>
           `
         : nothing}
@@ -797,7 +798,7 @@ export function renderAgentSkills(params: {
           <input
             .value=${params.filter}
             @input=${(e: Event) => params.onFilterChange((e.target as HTMLInputElement).value)}
-            placeholder="Search skills"
+            placeholder="Search workspace skills"
             autocomplete="off"
             name="agent-skills-filter"
           />
@@ -806,7 +807,7 @@ export function renderAgentSkills(params: {
       </div>
 
       ${filtered.length === 0
-        ? html` <div class="muted" style="margin-top: 16px">No skills found.</div> `
+        ? html` <div class="muted" style="margin-top: 16px">No workspace skills found.</div> `
         : html`
             <div class="agent-skills-groups" style="margin-top: 16px;">
               ${groups.map((group) =>

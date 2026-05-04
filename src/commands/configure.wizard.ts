@@ -12,6 +12,7 @@ import { ensureControlUiAssetsBuilt } from "../infra/control-ui-assets.js";
 import { resolvePluginContributionOwners } from "../plugins/plugin-registry.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
+import { isLocalSoloProductProfile } from "../shared/product-profile.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { note } from "../terminal/note.js";
 import { isPlainObject, resolveUserPath } from "../utils.js";
@@ -28,8 +29,8 @@ import type {
   WizardSection,
 } from "./configure.shared.js";
 import {
-  CONFIGURE_SECTION_OPTIONS,
   confirm,
+  getConfigureSectionOptions,
   intro,
   outro,
   select,
@@ -153,18 +154,19 @@ async function promptConfigureSection(
   runtime: RuntimeEnv,
   hasSelection: boolean,
 ): Promise<ConfigureSectionChoice> {
+  const sectionOptions = getConfigureSectionOptions();
   return guardCancel(
     await select<ConfigureSectionChoice>({
       message: "Select sections to configure",
       options: [
-        ...CONFIGURE_SECTION_OPTIONS,
+        ...sectionOptions,
         {
           value: "__continue",
           label: "Continue",
           hint: hasSelection ? "Done" : "Skip for now",
         },
       ],
-      initialValue: CONFIGURE_SECTION_OPTIONS[0]?.value,
+      initialValue: sectionOptions[0]?.value,
     }),
     runtime,
   );
@@ -201,29 +203,45 @@ async function promptWebToolsConfig(
   const existingSearch = nextConfig.tools?.web?.search;
   const existingFetch = nextConfig.tools?.web?.fetch;
   const { isCodexNativeWebSearchRelevant } = await import("../agents/codex-native-web-search.js");
+  const localSolo = isLocalSoloProductProfile();
   const hasManagedSearchProviders =
     resolvePluginContributionOwners({
       config: nextConfig,
       contribution: "contracts",
       matches: "webSearchProviders",
     }).length > 0;
+  const codexRelevant = isCodexNativeWebSearchRelevant({ config: nextConfig });
+  const canConfigureSearch = hasManagedSearchProviders || codexRelevant;
 
   note(
-    [
-      "Web search lets your agent look things up online using the `web_search` tool.",
-      "Choose a managed provider now, and Codex-capable models can also use native Codex web search.",
-      "Docs: https://docs.openclaw.ai/tools/web",
-    ].join("\n"),
-    "Web search",
+    (localSolo
+      ? [
+          "Web tools here focus on reading pages with `web_fetch` and readability extraction.",
+          canConfigureSearch
+            ? "Enable `web_search` only if you intentionally kept a search-capable provider in this local-solo profile."
+            : existingSearch?.enabled
+              ? "`web_search` is still configured, but no bundled search provider is available in this local-solo profile."
+              : "No bundled `web_search` provider is available in this local-solo profile.",
+          "Docs: https://docs.openclaw.ai/tools/web",
+        ]
+      : [
+          "Web search lets your agent look things up online using the `web_search` tool.",
+          "Choose a managed provider now, and Codex-capable models can also use native Codex web search.",
+          "Docs: https://docs.openclaw.ai/tools/web",
+        ]
+    ).join("\n"),
+    localSolo ? "Web tools" : "Web search",
   );
 
-  const enableSearch = guardCancel(
-    await confirm({
-      message: "Enable web_search?",
-      initialValue: existingSearch?.enabled ?? hasManagedSearchProviders,
-    }),
-    runtime,
-  );
+  const enableSearch = canConfigureSearch
+    ? guardCancel(
+        await confirm({
+          message: "Enable web_search?",
+          initialValue: existingSearch?.enabled ?? hasManagedSearchProviders,
+        }),
+        runtime,
+      )
+    : false;
 
   let nextSearch: WebSearchConfig = {
     ...existingSearch,
@@ -232,7 +250,6 @@ async function promptWebToolsConfig(
   let workingConfig = nextConfig;
 
   if (enableSearch) {
-    const codexRelevant = isCodexNativeWebSearchRelevant({ config: nextConfig });
     let configureManagedProvider = true;
 
     if (codexRelevant) {
@@ -307,12 +324,19 @@ async function promptWebToolsConfig(
       const searchProviderOptions = resolveSearchProviderOptions(nextConfig);
       if (searchProviderOptions.length === 0) {
         note(
-          [
-            "No web search providers are currently available under this plugin policy.",
-            "Enable plugins or remove deny rules, then rerun configure.",
-            "Docs: https://docs.openclaw.ai/tools/web",
-          ].join("\n"),
-          "Web search",
+          (localSolo
+            ? [
+                "No bundled `web_search` provider is currently available in this local-solo profile.",
+                "Keep using `web_fetch` and readability extraction, or add a search provider plugin later.",
+                "Docs: https://docs.openclaw.ai/tools/web",
+              ]
+            : [
+                "No web search providers are currently available under this plugin policy.",
+                "Enable plugins or remove deny rules, then rerun configure.",
+                "Docs: https://docs.openclaw.ai/tools/web",
+              ]
+          ).join("\n"),
+          localSolo ? "Web tools" : "Web search",
         );
         if (nextSearch.openaiCodex?.enabled !== true) {
           nextSearch = {
@@ -365,6 +389,7 @@ export async function runConfigureWizard(
   runtime: RuntimeEnv = defaultRuntime,
 ) {
   try {
+    const localSolo = isLocalSoloProductProfile();
     intro(opts.command === "update" ? "OpenClaw update wizard" : "OpenClaw configure");
     const prompter = createClackPrompter();
 
@@ -434,30 +459,32 @@ export async function runConfigureWizard(
       : Promise.resolve(null);
     const [localProbe, remoteProbe] = await Promise.all([localProbePromise, remoteProbePromise]);
 
-    const mode = guardCancel(
-      await select({
-        message: "Where will the Gateway run?",
-        options: [
-          {
-            value: "local",
-            label: "Local (this machine)",
-            hint: localProbe.ok
-              ? `Gateway reachable (${localUrl})`
-              : `No gateway detected (${localUrl})`,
-          },
-          {
-            value: "remote",
-            label: "Remote (info-only)",
-            hint: !remoteUrl
-              ? "No remote URL configured yet"
-              : remoteProbe?.ok
-                ? `Gateway reachable (${remoteUrl})`
-                : `Configured but unreachable (${remoteUrl})`,
-          },
-        ],
-      }),
-      runtime,
-    );
+    const mode = localSolo
+      ? "local"
+      : guardCancel(
+          await select({
+            message: "Where will the Gateway run?",
+            options: [
+              {
+                value: "local",
+                label: "Local (this machine)",
+                hint: localProbe.ok
+                  ? `Gateway reachable (${localUrl})`
+                  : `No gateway detected (${localUrl})`,
+              },
+              {
+                value: "remote",
+                label: "Remote (info-only)",
+                hint: !remoteUrl
+                  ? "No remote URL configured yet"
+                  : remoteProbe?.ok
+                    ? `Gateway reachable (${remoteUrl})`
+                    : `Configured but unreachable (${remoteUrl})`,
+              },
+            ],
+          }),
+          runtime,
+        );
 
     if (mode === "remote") {
       let remoteConfig = await promptRemoteGatewayConfig(baseConfig, prompter);
@@ -621,7 +648,9 @@ export async function runConfigureWizard(
     };
 
     if (opts.sections) {
-      const selected = opts.sections;
+      const selected = localSolo
+        ? opts.sections.filter((section) => section !== "channels")
+        : opts.sections;
       if (!selected || selected.length === 0) {
         outro("No changes selected.");
         return;

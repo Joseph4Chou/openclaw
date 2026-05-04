@@ -98,6 +98,20 @@ describe("renderSkills", () => {
     }
   });
 
+  it("uses workspace-skills copy in the main skills view", async () => {
+    const container = document.createElement("div");
+
+    render(renderSkills(createProps()), container);
+    await Promise.resolve();
+
+    const text = normalizeText(container);
+    expect(text).toContain("Review the workspace skills kept in this profile.");
+    expect(text).toContain("Browse and install additional skills from ClawHub");
+    expect(
+      container.querySelector<HTMLInputElement>('input[name="skills-filter"]')?.placeholder,
+    ).toBe("Filter workspace skills");
+  });
+
   it("opens detail dialogs and routes ClawHub actions", async () => {
     const container = document.createElement("div");
     const onDetailClose = vi.fn();

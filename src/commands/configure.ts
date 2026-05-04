@@ -6,6 +6,7 @@ export {
 export { buildGatewayAuthConfig } from "./configure.gateway-auth.js";
 export {
   CONFIGURE_WIZARD_SECTIONS,
+  getConfigureWizardSections,
   parseConfigureWizardSections,
   type WizardSection,
 } from "./configure.shared.js";

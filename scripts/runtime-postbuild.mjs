@@ -66,6 +66,13 @@ export function copyStaticExtensionAssets(params = {}) {
   for (const { src, dest } of assets) {
     const srcPath = path.join(rootDir, src);
     const destPath = path.join(rootDir, dest);
+    const extensionMatch = src.replace(/\\/g, "/").match(/^extensions\/([^/]+)\//u);
+    if (extensionMatch?.[1]) {
+      const extensionRoot = path.join(rootDir, "extensions", extensionMatch[1]);
+      if (!fsImpl.existsSync(extensionRoot)) {
+        continue;
+      }
+    }
     if (fsImpl.existsSync(srcPath)) {
       fsImpl.mkdirSync(path.dirname(destPath), { recursive: true });
       fsImpl.copyFileSync(srcPath, destPath);

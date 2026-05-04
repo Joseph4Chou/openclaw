@@ -1,6 +1,6 @@
 import { render } from "lit";
 import { describe, expect, it } from "vitest";
-import { renderAgentTools } from "./agents-panels-tools-skills.ts";
+import { renderAgentSkills, renderAgentTools } from "./agents-panels-tools-skills.ts";
 
 function createBaseParams(overrides: Partial<Parameters<typeof renderAgentTools>[0]> = {}) {
   return {
@@ -23,6 +23,58 @@ function createBaseParams(overrides: Partial<Parameters<typeof renderAgentTools>
     runtimeSessionMatchesSelectedAgent: true,
     onProfileChange: () => undefined,
     onOverridesChange: () => undefined,
+    onConfigReload: () => undefined,
+    onConfigSave: () => undefined,
+    ...overrides,
+  };
+}
+
+function createAgentSkillsParams(overrides: Partial<Parameters<typeof renderAgentSkills>[0]> = {}) {
+  return {
+    agentId: "main",
+    report: {
+      workspaceDir: "/tmp/workspace",
+      managedSkillsDir: "/tmp/skills",
+      skills: [
+        {
+          name: "nano-pdf",
+          description: "Read PDFs",
+          source: "openclaw-workspace",
+          filePath: "/tmp/skill",
+          baseDir: "/tmp",
+          skillKey: "nano-pdf",
+          bundled: false,
+          primaryEnv: undefined,
+          emoji: undefined,
+          homepage: undefined,
+          always: false,
+          disabled: false,
+          blockedByAllowlist: false,
+          eligible: true,
+          requirements: { bins: [], env: [], config: [], os: [] },
+          missing: { bins: [], env: [], config: [], os: [] },
+          configChecks: [],
+          install: [],
+        },
+      ],
+    },
+    loading: false,
+    error: null,
+    activeAgentId: "main",
+    configForm: {
+      agents: {
+        list: [{ id: "main", skills: ["nano-pdf"] }],
+      },
+    } as Record<string, unknown>,
+    configLoading: false,
+    configSaving: false,
+    configDirty: false,
+    filter: "",
+    onFilterChange: () => undefined,
+    onRefresh: () => undefined,
+    onToggle: () => undefined,
+    onClear: () => undefined,
+    onDisableAll: () => undefined,
     onConfigReload: () => undefined,
     onConfigSave: () => undefined,
     ...overrides,
@@ -338,5 +390,19 @@ describe("agents tools panel (browser)", () => {
     expect(tool.open).toBe(true);
 
     container.remove();
+  });
+
+  it("uses workspace-skills copy in the agent skills panel", async () => {
+    const container = document.createElement("div");
+
+    render(renderAgentSkills(createAgentSkillsParams()), container);
+    await Promise.resolve();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("Choose which kept workspace skills this agent can use.");
+    expect(text).toContain("This agent uses a custom workspace-skill allowlist.");
+    expect(
+      container.querySelector<HTMLInputElement>('input[name="agent-skills-filter"]')?.placeholder,
+    ).toBe("Search workspace skills");
   });
 });

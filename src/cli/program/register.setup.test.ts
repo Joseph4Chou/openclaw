@@ -29,6 +29,8 @@ vi.mock("../../runtime.js", () => ({
 }));
 
 describe("registerSetupCommand", () => {
+  const originalProductProfile = process.env.OPENCLAW_PRODUCT_PROFILE;
+
   async function runCli(args: string[]) {
     const program = new Command();
     registerSetupCommand(program);
@@ -39,6 +41,26 @@ describe("registerSetupCommand", () => {
     vi.clearAllMocks();
     setupCommandMock.mockResolvedValue(undefined);
     setupWizardCommandMock.mockResolvedValue(undefined);
+    if (originalProductProfile === undefined) {
+      delete process.env.OPENCLAW_PRODUCT_PROFILE;
+    } else {
+      process.env.OPENCLAW_PRODUCT_PROFILE = originalProductProfile;
+    }
+  });
+
+  it("hides remote setup flags in the local-solo profile", () => {
+    process.env.OPENCLAW_PRODUCT_PROFILE = "local-solo";
+
+    const program = new Command();
+    registerSetupCommand(program);
+    const help = program.commands[0]?.helpInformation() ?? "";
+
+    expect(help).toContain("active local config and main agent workspace");
+    expect(help).not.toContain("--mode <mode>");
+    expect(help).not.toContain("--remote-url <url>");
+    expect(help).not.toContain("--remote-token <token>");
+    expect(help).toContain("--wizard");
+    expect(help).toContain("--non-interactive");
   });
 
   it("runs setup command by default", async () => {

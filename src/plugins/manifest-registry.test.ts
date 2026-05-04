@@ -402,8 +402,10 @@ describe("loadPluginManifestRegistry", () => {
 
   it("filters bundled plugins to the local-solo allowlist", () => {
     const openaiDir = makeTempDir();
+    const anthropicDir = makeTempDir();
     const telegramDir = makeTempDir();
     writeManifest(openaiDir, { id: "openai", configSchema: { type: "object" } });
+    writeManifest(anthropicDir, { id: "anthropic", configSchema: { type: "object" } });
     writeManifest(telegramDir, { id: "telegram", configSchema: { type: "object" } });
 
     const registry = loadPluginManifestRegistry({
@@ -415,6 +417,11 @@ describe("loadPluginManifestRegistry", () => {
           origin: "bundled",
         }),
         createPluginCandidate({
+          idHint: "anthropic",
+          rootDir: anthropicDir,
+          origin: "bundled",
+        }),
+        createPluginCandidate({
           idHint: "telegram",
           rootDir: telegramDir,
           origin: "bundled",
@@ -422,7 +429,7 @@ describe("loadPluginManifestRegistry", () => {
       ],
     });
 
-    expect(registry.plugins.map((plugin) => plugin.id)).toEqual(["openai"]);
+    expect(registry.plugins.map((plugin) => plugin.id)).toEqual(["openai", "anthropic"]);
   });
 
   it("suppresses duplicate warnings for explicit installed globals overriding bundled plugins", () => {

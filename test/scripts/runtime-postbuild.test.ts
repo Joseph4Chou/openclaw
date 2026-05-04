@@ -43,6 +43,7 @@ describe("runtime postbuild static assets", () => {
   it("warns when a declared static asset is missing", async () => {
     const rootDir = createTempDir("openclaw-runtime-postbuild-");
     const warn = vi.fn();
+    await fs.mkdir(path.join(rootDir, "extensions", "missing"), { recursive: true });
 
     copyStaticExtensionAssets({
       rootDir,
@@ -53,6 +54,24 @@ describe("runtime postbuild static assets", () => {
     expect(warn).toHaveBeenCalledWith(
       "[runtime-postbuild] static asset not found, skipping: missing/file.mjs",
     );
+  });
+
+  it("silently skips static assets for extensions that are not present in this worktree", () => {
+    const rootDir = createTempDir("openclaw-runtime-postbuild-");
+    const warn = vi.fn();
+
+    copyStaticExtensionAssets({
+      rootDir,
+      assets: [
+        {
+          src: "extensions/acpx/src/runtime-internals/mcp-proxy.mjs",
+          dest: "dist/extensions/acpx/mcp-proxy.mjs",
+        },
+      ],
+      warn,
+    });
+
+    expect(warn).not.toHaveBeenCalled();
   });
 
   it("writes stable aliases for hashed root runtime modules", async () => {

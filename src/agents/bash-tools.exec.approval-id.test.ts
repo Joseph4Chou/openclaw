@@ -420,12 +420,8 @@ describe("exec approvals", () => {
 
   it("reuses approval id as the node runId", async () => {
     let invokeParams: unknown;
-    let agentParams: unknown;
 
     mockAcceptedApprovalFlow({
-      onAgent: (params) => {
-        agentParams = params;
-      },
       onNodeInvoke: (params) => {
         const invoke = params as { command?: string };
         if (invoke.command === "system.run.prepare") {
@@ -468,7 +464,7 @@ describe("exec approvals", () => {
     ).toMatchObject({
       suppressNotifyOnExit: true,
     });
-    await expect.poll(() => agentParams, { timeout: 2000, interval: 1 }).toBeTruthy();
+    expect(sendMessage).not.toHaveBeenCalled();
   });
 
   it("skips approval when node allowlist is satisfied", async () => {
@@ -912,14 +908,8 @@ describe("exec approvals", () => {
     expect(calls).toContain("exec.approval.waitDecision");
   });
 
-  it("starts an internal agent follow-up after approved gateway exec completes without an external route", async () => {
-    const agentCalls: Array<Record<string, unknown>> = [];
-
-    mockAcceptedApprovalFlow({
-      onAgent: (params) => {
-        agentCalls.push(params);
-      },
-    });
+  it("does not auto-resume an internal agent after approved gateway exec completes without an external route", async () => {
+    mockAcceptedApprovalFlow();
 
     const tool = createExecTool({
       host: "gateway",
@@ -935,28 +925,12 @@ describe("exec approvals", () => {
     });
 
     expect(result.details.status).toBe("approval-pending");
-    await expect.poll(() => agentCalls.length, { timeout: 3000, interval: 1 }).toBe(1);
-    expect(agentCalls[0]).toEqual(
-      expect.objectContaining({
-        sessionKey: "agent:main:main",
-        deliver: false,
-        idempotencyKey: expect.stringContaining("exec-approval-followup:"),
-      }),
-    );
-    expect(typeof agentCalls[0]?.message).toBe("string");
-    expect(agentCalls[0]?.message).toContain(
-      "An async command the user already approved has completed.",
-    );
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(sendMessage).not.toHaveBeenCalled();
   });
 
-  it("continues the original agent session after approved gateway exec completes with an external route", async () => {
-    const agentCalls: Array<Record<string, unknown>> = [];
-
-    mockAcceptedApprovalFlow({
-      onAgent: (params) => {
-        agentCalls.push(params);
-      },
-    });
+  it("sends a direct follow-up after approved gateway exec completes with an external route", async () => {
+    mockAcceptedApprovalFlow();
 
     const tool = createExecTool({
       host: "gateway",
@@ -976,28 +950,25 @@ describe("exec approvals", () => {
     });
 
     expect(result.details.status).toBe("approval-pending");
-    await expect.poll(() => agentCalls.length, { timeout: 3000, interval: 1 }).toBe(1);
-    expect(agentCalls[0]).toEqual(
+    await expect
+      .poll(() => vi.mocked(sendMessage).mock.calls.length, {
+        timeout: 3000,
+        interval: 1,
+      })
+      .toBe(1);
+    expect(sendMessage).toHaveBeenCalledWith(
       expect.objectContaining({
-        sessionKey: "agent:main:discord:channel:123",
-        deliver: true,
-        bestEffortDeliver: true,
         channel: "discord",
         to: "123",
         accountId: "default",
         threadId: "456",
         idempotencyKey: expect.stringContaining("exec-approval-followup:"),
+        content: "ok",
       }),
     );
-    expect(typeof agentCalls[0]?.message).toBe("string");
-    expect(agentCalls[0]?.message).toContain(
-      "If the task requires more steps, continue from this result before replying to the user.",
-    );
-    expect(sendMessage).not.toHaveBeenCalled();
   });
 
-  it("auto-continues the same Discord session after approval resolves without a second user turn", async () => {
-    const agentCalls: Array<Record<string, unknown>> = [];
+  it("sends a direct Discord follow-up after approval resolves without a second user turn", async () => {
     let resolveDecision: ((value: { decision: string }) => void) | undefined;
     const decisionPromise = new Promise<{ decision: string }>((resolve) => {
       resolveDecision = resolve;
@@ -1009,10 +980,6 @@ describe("exec approvals", () => {
       }
       if (method === "exec.approval.waitDecision") {
         return await decisionPromise;
-      }
-      if (method === "agent") {
-        agentCalls.push(params as Record<string, unknown>);
-        return { status: "ok" };
       }
       return { ok: true };
     });
@@ -1035,38 +1002,29 @@ describe("exec approvals", () => {
     });
 
     expect(result.details.status).toBe("approval-pending");
-    expect(agentCalls).toHaveLength(0);
+    expect(sendMessage).not.toHaveBeenCalled();
 
     resolveDecision?.({ decision: "allow-once" });
 
-    await expect.poll(() => agentCalls.length, { timeout: 3000, interval: 1 }).toBe(1);
-    expect(agentCalls[0]).toEqual(
+    await expect
+      .poll(() => vi.mocked(sendMessage).mock.calls.length, {
+        timeout: 3000,
+        interval: 1,
+      })
+      .toBe(1);
+    expect(sendMessage).toHaveBeenCalledWith(
       expect.objectContaining({
-        sessionKey: "agent:main:discord:channel:123",
-        deliver: true,
-        bestEffortDeliver: true,
         channel: "discord",
         to: "123",
         accountId: "default",
         threadId: "456",
+        content: "delayed-ok",
       }),
     );
-    expect(typeof agentCalls[0]?.message).toBe("string");
-    expect(agentCalls[0]?.message).toContain(
-      "If the task requires more steps, continue from this result before replying to the user.",
-    );
-    expect(agentCalls[0]?.message).toContain("delayed-ok");
-    expect(sendMessage).not.toHaveBeenCalled();
   });
 
-  it("executes approved commands and emits a session-only followup in webchat-only mode", async () => {
-    const agentCalls: Array<Record<string, unknown>> = [];
-
-    mockAcceptedApprovalFlow({
-      onAgent: (params) => {
-        agentCalls.push(params);
-      },
-    });
+  it("executes approved commands without emitting a session-only followup in webchat-only mode", async () => {
+    mockAcceptedApprovalFlow();
 
     const tool = createExecTool({
       host: "gateway",
@@ -1082,30 +1040,17 @@ describe("exec approvals", () => {
     });
 
     expect(result.details.status).toBe("approval-pending");
-
-    await expect.poll(() => agentCalls.length, { timeout: 3000, interval: 1 }).toBe(1);
-    expect(agentCalls[0]).toEqual(
-      expect.objectContaining({
-        sessionKey: "agent:main:main",
-        deliver: false,
-      }),
-    );
-    expect(agentCalls[0]?.message).toContain("webchat-ok");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(sendMessage).not.toHaveBeenCalled();
   });
 
-  it("uses a deny-specific followup prompt so prior output is not reused", async () => {
-    const agentCalls: Array<Record<string, unknown>> = [];
-
+  it("sends safe denied copy directly instead of resuming the agent", async () => {
     vi.mocked(callGatewayTool).mockImplementation(async (method, _opts, params) => {
       if (method === "exec.approval.request") {
         return acceptedApprovalResponse(params);
       }
       if (method === "exec.approval.waitDecision") {
         return { decision: "deny" };
-      }
-      if (method === "agent") {
-        agentCalls.push(params as Record<string, unknown>);
-        return { status: "ok" };
       }
       return { ok: true };
     });
@@ -1124,15 +1069,8 @@ describe("exec approvals", () => {
     });
 
     expect(result.details.status).toBe("approval-pending");
-    await expect.poll(() => agentCalls.length, { timeout: 3000, interval: 1 }).toBe(1);
-    expect(typeof agentCalls[0]?.message).toBe("string");
-    expect(agentCalls[0]?.message).toContain("An async command did not run.");
-    expect(agentCalls[0]?.message).toContain(
-      "Do not mention, summarize, or reuse output from any earlier run in this session.",
-    );
-    expect(agentCalls[0]?.message).not.toContain(
-      "An async command the user already approved has completed.",
-    );
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(sendMessage).not.toHaveBeenCalled();
   });
 
   it("requires a separate approval for each elevated command after allow-once", async () => {

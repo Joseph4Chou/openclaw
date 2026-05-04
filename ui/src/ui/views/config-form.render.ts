@@ -291,7 +291,10 @@ export const SECTION_META: Record<string, { label: string; description: string }
   messages: { label: "Messages", description: "Message handling and routing settings" },
   commands: { label: "Commands", description: "Custom slash commands" },
   hooks: { label: "Hooks", description: "Webhooks and event hooks" },
-  skills: { label: "Skills", description: "Skill packs and capabilities" },
+  skills: {
+    label: "Skills",
+    description: "Review the workspace skills kept in this profile",
+  },
   tools: { label: "Tools", description: "Tool configurations (browser, search, etc.)" },
   gateway: { label: "Gateway", description: "Gateway server settings (port, auth, binding)" },
   wizard: { label: "Setup Wizard", description: "Setup wizard state and history" },
@@ -310,7 +313,10 @@ export const SECTION_META: Record<string, { label: string; description: string }
   discovery: { label: "Discovery", description: "Service discovery and networking" },
   canvasHost: { label: "Canvas Host", description: "Canvas rendering and display" },
   talk: { label: "Talk", description: "Voice and speech settings" },
-  plugins: { label: "Plugins", description: "Plugin management and extensions" },
+  plugins: {
+    label: "Plugins",
+    description: "Configure bundled providers, memory, and helper plugins",
+  },
   diagnostics: {
     label: "Diagnostics",
     description: "Instrumentation, OpenTelemetry, and cache-trace settings",
